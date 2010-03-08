@@ -1,0 +1,429 @@
+#!/usr/bin/env python
+
+"""
+Copyright (c) 2002-2009 William H. Green and the CanTherm Team
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+"""
+
+
+#takes the file as an argument and then reads the geometry and lower triangular part
+#of the force constant matrix and the Atomic mass vector
+
+import os 
+from numpy import *
+from Rotor import *
+import pdb
+import CanTherm
+from Molecule import *
+import re,shutil,getopt
+
+def readInputFile(file,data):
+
+#read calculation type
+# Will either be 'THERMO' or 'REAC'
+    line = readMeaningfulLine(file)
+    if line.split()[1].upper() == 'THERMO' :
+        data.CalcType = 'Thermo'
+    elif line.split()[1].upper() == 'REAC' :
+        data.CalcType = 'Reac'
+    else:
+        print 'First line of the input file is neither Reac or Thermo'
+        exit()
+
+#read reaction & tunneling type, if reaction calculation specified
+    line = readMeaningfulLine(file)
+    if data.CalcType == 'Reac':
+
+        #read reaction type: unimolecular or bimolecular
+        if line.split()[1].upper() == 'UNIMOL' :
+            data.ReacType = 'Unimol'
+        elif line.split()[1].upper() == 'BIMOL' :
+            data.ReacType = 'Bimol'
+        else :
+            print 'ReactionType is not recognized.  Reaction field has options "Unimol" and "Bimol"'
+            exit()
+        line = readMeaningfulLine(file)
+
+        #read tunneling type
+        if line.split()[1].upper() == 'WIGNER' :
+            data.TunnelType = 'Wigner'
+        elif line.split()[1].upper() == 'SYMMECKART' :
+            data.TunnelType = 'sEckart'
+        elif line.split()[1].upper() == 'ASYMMECKART' :
+            data.TunnelType = 'aEckart'
+            data.numProds = int(line.split()[2])
+        elif line.split()[1].upper() == 'NONE' :
+            data.TunnelType = 'none'
+        else :
+            print 'TunnelType is not recognized.  Tunneling field has options "Wigner", "SymmEckart", and "AsymmEckart"'
+            exit()
+        line = readMeaningfulLine(file)
+    
+#read Temperature range
+    tokens = line.split()
+    if tokens[0].upper() == 'TLIST:':
+	#line = readMeaningfulLine(file);
+	numTemp = int(tokens[1])
+        i = 0
+        while i < numTemp:
+	    #line = readMeaningfulLine(file)
+            #tokens = line.split()
+            #i = i+ len(tokens)
+            #for j in tokens:
+                #data.Temp.append(float(j))
+            data.Temp.append(float(tokens[i+2]))
+            i = i+1
+        if len(data.Temp) > numTemp:
+            print 'More Temperatures than ', numTemp, ' are specified'
+
+    elif tokens[0].upper() == 'TRANGE:':
+        #line = readMeaningfulLine(file);
+        #tokens = line.split()         
+        T0 = float(tokens[1])
+        dT = float(tokens[2])
+        numTemp = int(tokens[3])
+        for i in range(numTemp):
+            data.Temp.append(T0+i*dT)
+    else:
+        print 'Temperaure information not given: Either use keyword Tlist or Trange'
+        exit()
+
+#read scaling factor
+    line = readMeaningfulLine(file)
+    if (line.split()[0].upper() != 'SCALE:'):
+       print 'Give a scaling factor'
+       exit()
+    data.scale = float(line.split()[1])
+
+# read molecular data
+    if (data.CalcType == 'Thermo'):
+       numMol = 1
+    elif data.CalcType == 'Reac' and data.ReacType == 'Unimol':
+       if data.TunnelType != 'aEckart' :
+           numMol = 2
+       else :
+           numMol = 2 + data.numProds
+       #numMol = 2
+    elif data.CalcType == 'Reac' and data.ReacType == 'Bimol':
+       if data.TunnelType != 'aEckart' :
+           numMol = 3
+       else :
+           numMol = 3 + data.numProds
+       #numMol = 3
+
+    for i in range(numMol):
+        if (data.ReacType=='Unimol' and i==1) or (data.ReacType=='Bimol' and i==2):
+          #Molecule is a transition state
+          molecule = Molecule(file, True)
+        else:
+          molecule = Molecule(file, False)	   
+        data.MoleculeList.append(molecule)
+    return 
+
+def readMeaningfulLine(file):
+    readMore = True
+    while (readMore):
+	line = file.readline()
+        index = line.find('!')
+        line = line[:index]
+        if (len(line.split()) != 0):
+            return line
+    
+def readInertia(file):
+    lines = file.readlines()
+    numAtoms = int(lines[0])
+    numRotors = int(lines[numAtoms+1])
+    pivots = []
+    rotAtoms = []
+    for i in range(numRotors):
+       tokens = lines[numAtoms+2+3*i].split()
+       pivots.append(int(tokens[0]))
+       pivots.append(int(tokens[1]))
+       atoms1=[]
+       atoms2=[]
+       atom1tokens = lines[numAtoms+2+3*i+1].split()
+       atom2tokens = lines[numAtoms+2+3*i+2].split()
+       for j in range(int(tokens[2])):
+           atoms1.append(int(atom1tokens[j]))
+       for j in range(int(tokens[3])):
+           atoms2.append(int(atom2tokens[j]))
+       rotAtoms.append(atoms1)
+       rotAtoms.append(atoms2)
+    return pivots, rotAtoms,numRotors
+
+
+def readGeneralInertia(file,Mass):
+    lines = file.readlines()
+    rotors = []
+
+    prevLevel=1
+    i = 0
+    parentLevel = 0 #gives the index of parent in rotors
+
+    for line in lines:
+        tokens = line.split()
+        if (len(tokens) == 0):
+            continue
+        level = int(tokens[0][1])
+
+        if (level!=1):
+
+            if (rotors[parentLevel].level == level -2):
+                parentLevel = i-1
+            elif (rotors[parentLevel].level >= level):
+                jumps = rotors[parentLevel].level - level +1
+                for k in range(jumps):
+                    parentLevel = rotors[parentLevel].parent
+        symm = int(tokens[1])
+        pivot2 = int(tokens[2])
+        atomsList=[]
+        for atoms in tokens[3:]:
+            atomsList.append(int(atoms))
+        rotor = Rotor(atomsList,pivot2,level,symm,Mass)
+        rotor.parent = parentLevel
+        #print rotor.symm, rotor.pivot2, rotor.pivotAtom, rotor.atomsList
+        rotors.append(rotor) 
+        i = i+1
+    return rotors
+
+
+def readGeom(file):
+    lines = file.readlines()
+    lines.reverse()
+#read geometries
+
+    i = lines.index("                          Input orientation:                          \n")
+    geomLines = []
+    stillRead = True
+    k = i-5;
+    while (stillRead):
+       geomLines.append(lines[k])
+       k = k-1
+       if (lines[k].startswith(" ------------")):
+          stillRead = False
+
+    geom = matrix(array(zeros((len(geomLines),3),dtype=float)))
+    Mass = matrix(array(zeros((len(geomLines),1),dtype=float)))
+
+    for j in range(len(geomLines)):
+        line = geomLines[j]
+        tokens = line.split()
+        geom[j,0]=double(tokens[3])
+        geom[j,1]=double(tokens[4])
+        geom[j,2]=double(tokens[5])
+        Mass[j] = getMassByAtomicNumber(int(tokens[1]))
+    return geom, Mass
+
+
+
+def readGeomFc(file):
+    lines = file.readlines()
+    lines.reverse()
+#read geometries
+
+    i = lines.index("                          Input orientation:                          \n")
+    geomLines = []
+    stillRead = True
+    k = i-5;
+    while (stillRead):
+       geomLines.append(lines[k])
+       k = k-1
+       if (lines[k].startswith(" ------------")):
+          stillRead = False
+
+    geom = matrix(array(zeros((len(geomLines),3),dtype=float)))
+    Mass = matrix(array(zeros((len(geomLines),1),dtype=float)))
+
+    for j in range(len(geomLines)):
+        line = geomLines[j]
+        tokens = line.split()
+        geom[j,0] = double(tokens[3])
+        geom[j,1]=double(tokens[4])
+        geom[j,2]=double(tokens[5])
+        if (int(tokens[1])== 6): Mass[j]=12.0
+        if (int(tokens[1])== 8): Mass[j]=15.99491
+        if (int(tokens[1])== 1): Mass[j]=1.00783
+        if (int(tokens[1])== 7): Mass[j]=14.0031
+        if (int(tokens[1])== 17): Mass[j]=34.96885
+        if (int(tokens[1])== 16): Mass[j]=31.97207
+        if (int(tokens[1])== 9): Mass[j]=18.99840
+
+#read force constants
+    Fc = matrix(array(zeros((len(geomLines)*3,len(geomLines)*3),dtype=float)))
+    i = lines.index(" Force constants in Cartesian coordinates: \n")
+    fclines = []
+    stillRead = True
+    k = i-1;
+    while (stillRead):
+       fclines.append(lines[k])
+       k = k-1
+       if (lines[k].startswith(" Force constants in internal coordinates:")):
+          stillRead = False
+
+    numRepeats = len(geomLines)*3/5 + 1
+    j = 0
+    while j in range(numRepeats):
+       i = 5*j
+       while i in range(5*j,len(geomLines)*3):
+          line = fclines[(j*(len(geomLines)*3 + 1) - j*(j-1)*5/2)+i+1-5*j]
+          tokens = line.split()
+          k = 0
+          while k in range(0,min(i+1-5*j,5)):
+              Fc[i,5*j+k]=float(tokens[k+1].replace('D','E'))
+              k = k+1
+          i= i+1
+       j = j+1
+
+    return geom, Mass, Fc
+
+def readFc(file):
+    lines = file.readlines()
+    lines.reverse()
+#read geometries
+
+    i = lines.index("                          Input orientation:                          \n")
+    geomLines = []
+    stillRead = True
+    k = i-5;
+    while (stillRead):
+       geomLines.append(lines[k])
+       k = k-1
+       if (lines[k].startswith(" ------------")):
+          stillRead = False
+
+    geom = matrix(array(zeros((len(geomLines),3),dtype=float)))
+    Mass = matrix(array(zeros((len(geomLines),1),dtype=float)))
+
+    for j in range(len(geomLines)):
+        line = geomLines[j]
+        tokens = line.split()
+        geom[j,0]=double(tokens[3])
+        geom[j,1]=double(tokens[4])
+        geom[j,2]=double(tokens[5])
+        Mass[j] = getMassByAtomicNumber(int(tokens[1]))
+
+#read force constants
+    Fc = matrix(array(zeros((len(geomLines)*3,len(geomLines)*3),dtype=float)))
+    i = lines.index(" Force constants in Cartesian coordinates: \n")
+    fclines = []
+    stillRead = True
+    k = i-1;
+    while (stillRead):
+       fclines.append(lines[k])
+       k = k-1
+       if (lines[k].startswith(" Force constants in internal coordinates:")):
+          stillRead = False
+
+    numRepeats = len(geomLines)*3/5 + 1
+    j = 0
+    while j in range(numRepeats):
+       i = 5*j
+       while i in range(5*j,len(geomLines)*3):
+          line = fclines[(j*(len(geomLines)*3 + 1) - j*(j-1)*5/2)+i+1-5*j]
+          tokens = line.split()
+          k = 0
+          while k in range(0,min(i+1-5*j,5)):
+              Fc[i,5*j+k]=float(tokens[k+1].replace('D','E'))
+              k = k+1
+          i= i+1
+       j = j+1
+
+    return  Fc
+
+def printNormalModes(l,v,num,Mass):
+   for i in range(num):
+    for k in range(3):
+      print ('%18.3f '%(sqrt(l[i*3+k])*337.0/6.5463e-02)),  
+    print
+
+    for j in range(Mass.size):
+      for m in range(3):
+         for k in range(3):
+           print ('%6.2f'%(v[j*3+k,i*3+m])),
+         print ' ',
+      print
+    print  
+
+def readEnergy(file, string):
+   com = file.read()
+   if string == 'cbsqb3':
+     Energy=re.search('CBS-QB3 \(0 K\)= '+' \s*([\-0-9.]+)',com).group(1)
+   if string == 'g3':
+     Energy=re.search('G3\(0 K\)= '+' \s*([\-0-9.]+)',com).group(1)
+  
+   return float(Energy)
+
+def readHFEnergy(fileName):
+ file = open(fileName,'r')
+ Result = ""
+
+ line = file.readline()
+
+ startReading = False
+ while line!="":
+                
+                if (line[:9] == r" 1\1\GINC"):
+                    startReading = True
+                if (line[-4:-1]== r"\\@"):
+                    Result = Result+line[1:-1]
+                    break
+                if (startReading):
+                    Result= Result+line[1:-1]
+                    #pdb.set_trace()
+                line = file.readline()
+
+ hf_5 = getNum(Result,r"\HF=")
+ file.close() 
+ return hf_5
+
+def getNum(Result,id):
+    if (len(Result) <= 5):
+        return 0
+    fields = Result.split(id)
+    resStr = fields[1]
+    numstr = ""
+    for i in range(len(resStr)):
+        if resStr[i] == "\\" :
+            break
+        numstr = numstr + resStr[i]
+    return float(numstr)
+
+def getAtoms(Mass):
+    atoms = len(Mass)*['']
+    j = 0
+    for m in Mass:
+        if (int(m)== 12): atoms[j]='C'
+        if (int(m)== 15): atoms[j]='O'
+        if (int(m)== 1): atoms[j]='H'
+        if (int(m)== 14): atoms[j]='N'
+        if (int(m)== 34): atoms[j]='Cl'
+        if (int(m)== 31): atoms[j]='S'
+        if (int(m)== 18): atoms[j]='F'
+        j = j+1
+    return atoms
+
+def getMassByAtomicNumber(atomicNum) :
+    if (atomicNum == 6): Mass=12.0
+    if (atomicNum == 8): Mass=15.99491
+    if (atomicNum == 1): Mass=1.00783
+    if (atomicNum == 7): Mass=14.0031
+    if (atomicNum == 17): Mass=34.96885
+    if (atomicNum == 16): Mass=31.97207
+    if (atomicNum == 9): Mass=18.99840
+    return Mass

@@ -1,0 +1,17 @@
+
+Calculation: THERMO
+TRANGE: 300 100 13
+Scale: 0.99
+
+MOL 1
+NONLINEAR
+GEOM File ../sBuOH-geom.log          
+FORCEC File ../sBuOH-freq.log
+ENERGY File ../sBuOH-geom.log  CBS-QB3    
+EXTSYM 1
+NELEC 1
+ROTORS 4  ../ReactionRate/inertia_sBuOH.dat               
+POTENTIAL separable files
+../ReactionRate/sBuOH-1.txt ../ReactionRate/sBuOH-2.txt ../ReactionRate/sBuOH-3.txt ../ReactionRate/sBuOH-4.txt
+!BAC for C-H C-C C=C C.TB.C  O-H  C-O C=O
+9 3 0 0 1 1 0
