@@ -1,0 +1,52 @@
+\ifx\mcitethebibliography\mciteundefinedmacro
+\PackageError{achemso.bst}{mciteplus.sty has not been loaded}
+{This bibstyle requires the use of the mciteplus package.}\fi
+\begin{mcitethebibliography}{7}
+\providecommand*{\natexlab}[1]{#1}
+\mciteSetBstSublistMode{f}
+\mciteSetBstMaxWidthForm{subitem}{(\alph{mcitesubitemcount})}
+\mciteSetBstSublistLabelBeginEnd{\mcitemaxwidthsubitemform\space}
+{\relax}{\relax}
+
+\bibitem[Pitzer(1946)]{pitzer2}
+Pitzer,~K.~S. \emph{Journal of Chemical Physics} \textbf{1946}, \emph{14},
+  239--243\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[East and Radom(1997)]{east}
+East,~A. L.~L.; Radom,~L. \emph{Journal of Chemical Physics} \textbf{1997},
+  \emph{106}, 6655--6674\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Hirschfelder and Wigner(1939)]{hirsch}
+Hirschfelder,~J.~O.; Wigner,~E. \emph{Journal of Chemical Physics}
+  \textbf{1939}, \emph{7}, 616--628\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Johnston and Heicklen(1962)]{jon}
+Johnston,~H.~S.; Heicklen,~J. \emph{Journal of Physical Chemistry}
+  \textbf{1962}, \emph{66}, 532--533\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Eckart(1930)]{eck}
+Eckart,~C. \emph{Phys. Rev.} \textbf{1930}, \emph{35}, 1303--1309\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\bibitem[Garrett and Truhlar(1979)]{gar}
+Garrett,~B.~C.; Truhlar,~D.~G. \emph{Journal of Physical Chemistry}
+  \textbf{1979}, \emph{83}, 2921--2926\relax
+\mciteBstWouldAddEndPuncttrue
+\mciteSetBstMidEndSepPunct{\mcitedefaultmidpunct}
+{\mcitedefaultendpunct}{\mcitedefaultseppunct}\relax
+\EndOfBibitem
+\end{mcitethebibliography}

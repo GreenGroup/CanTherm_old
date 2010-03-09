@@ -1,0 +1,332 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{achemso}
+
+\title{CANTHERM}
+\author{Sandeep Sharma, Michael R. Harper, William H. Green}
+\begin{document}
+ \maketitle
+\tableofcontents
+\section{Introduction}
+CANTHERM is written in python and calculates the thermodynamic properties of stable molecules and high pressure limit rate coefficients for reactions. The types of calculations it can perform are
+\begin{itemize}
+ \item Calculates enthalpy, entropy and heat capacities using Rigid Rotor Harmonic Oscillator approximation with correction for hindered rotors.
+\item Calculates the high pressure rate coefficients for a unimolecular or a bimolecular reaction 
+\end{itemize}
+The manual first attempts to give some background theory and then goes on to give the instructions for making the input file. Finally a couple of example input files along with the output are given.
+
+\section{Theory}
+Rigid Rotor Harmonic Oscillator assumes separability of different modes of vibrations and internal/external rotations in a molecule. Each mode is then treated separately to calculate the partition function and subsequently the thermodynamic quantities from the partition functions. 
+\subsection{Translation}
+The partition function for translation is given in Equation~\ref{eq:tr1}. The resulting thermodynamic functions are given in Equations~\ref{eq:tr2}
+\begin{equation}
+ Q_{tr} = \left(\frac{2\pi m k_bT}{h^2}\right)^{3/2}V
+\label{eq:tr1}
+\end{equation}
+
+\begin{eqnarray}
+ S%&=&\frac{\partial}{\partial T}\left(k_bT\ln Q_{tr}\right)\nonumber\\
+&=&k_b \ln\left[\left(\frac{2\pi m k_bT}{h^2}\right)^{3/2} \frac{k_bTe^{5/2}}{p}\right]\nonumber\\
+c_p&=& \frac{5}{2}k_b \nonumber \\
+\Delta H&=& \frac{5}{2}k_bT
+\label{eq:tr2}
+\end{eqnarray}
+
+\subsection{Vibrations}
+Vibrational partition functions and the corresponding thermodynamic functions can be calculated exactly assuming that the vibrations behave like a harmonic oscillator. If the frequency of the $i^{th}$ vibration is given by $\nu_i$ then the quantities of interest are given in Equation~\ref{eq:vi1}. Note that in the expression of $\Delta H$ we have not included the zero point energy because we assume that the ground state is the electronic energy plus the zero point energy. It is the same reason that the $\exp{(-h\nu_i/2k_bT)}$ term is missing from the numerator of the partition function. The change in reference energy, from electronic energy to electronic energy plus zero point energy, has no effect on the heat capacity and entropy and their formulas will remain the same. Some of the vibrational modes correspond to torsional rotations of a molecule along a single bond. These modes act as harmonic oscillators at low temperatures but this approximation breaks down at higher temperatures and the modes start to behave as hindered rotors. The treatment of these torsional modes of vibrations is described in the next section.
+
+\begin{eqnarray}
+Q_{ho} &=& \prod_i \frac{1}{1-\exp{(-h\nu_i/k_bT)}} \nonumber \\
+S &=& \sum_i \left(-k_b \ln\left(1-\exp{(-h\nu_i/k_bT)}\right)+\frac{h\nu_i}{T}\frac{1}{\exp{(h\nu_i/k_bT)}-1}\right)\nonumber \\
+c_p &=& \sum_i \left(k_b\left(\frac{h\nu_i}{k_bT}\right)^2 \frac{\exp{(h\nu_i/k_bT)}}{\left(\exp{(h\nu_i/k_bT)}-1\right)^2}\right)\nonumber \\
+\Delta H &=& \sum_i\frac{h\nu_i}{\exp{(h\nu_i/k_bT)}-1}
+\label{eq:vi1}
+\end{eqnarray}
+
+\subsection{Rotations}
+For the molecule without internal rotors only the external rotors contribute to the rotational partition function. The partition functions and thermodynamic quantities for these rotors are calculated using the formulas given in Equations~\ref{eq:r1}.
+\begin{eqnarray}
+ Q_{e,r}&=&\frac{\pi^{1/2}}{\sigma_{ext}}\prod_i \left(\frac{8\pi^2I_ik_bT}{ h^2}\right)^{1/2} \nonumber \\
+S&=& k_b \left[ \ln \left(\frac{\pi^{1/2}}{\sigma_{ext}}\prod_i \left(\frac{8\pi^2I_ik_bT}{h^2}\right)^{1/2}\right) +\frac{3}{2}\right] \nonumber \\
+c_p&=& \frac{3}{2}k_b\nonumber \\
+\Delta H &=& \frac{3}{2}k_bT
+\label{eq:r1}
+\end{eqnarray}
+
+When a molecule has internal rotors then the external and internal rotors are coupled to each other and the combined partition function is calculated using the semi-classical Pitzer-Gwinn approximation given in Equation~\ref{eq:1}, where $Q_{r}$ is the total rotational partition function including the internal and external modes, $Q_{r,cl}$ is the classical partition function for the combined internal and external rotations calculated using the phase space integral, $Q_{ho,q}$ is the quantum partition function of the vibrational modes corresponding to the hindered rotor and $Q_{ho,cl}$ is the classical partition function of the vibrational modes corresponding to the hindered rotor.
+\begin{equation}
+ Q_{r} = Q_{r,cl}\frac{Q_{ho,q}}{Q_{ho,cl}}
+\label{eq:1}
+\end{equation}
+
+The expression for each of the partition functions is given in Equation~\ref{eq:2} and Equation~\ref{eq:vi1}, where we integrate over all dihedral angles $\phi_1$, $\phi_2$...$\phi_n$, which is just simply written as $\Phi$ for brevity.
+\begin{eqnarray}
+ Q_{r,cl} &=& \frac{\pi^{1/2}}{\sigma_{ext}}\left(\frac{8\pi^2k_bT}{ h^2}\right)^{3/2} \left( \frac{2 \pi k_b T}{h^2}\right)^{n/2} \frac{1}{\prod_i \sigma_i}\int_{\Phi} [D]^{1/2} \exp{(-V(\Phi)/k_bT)} d\Phi \nonumber \\
+Q_{ho,cl} &=& \prod_i \frac{k_bT}{h\nu_i}
+\label{eq:2}
+\end{eqnarray}
+
+
+For free rotors we just substitute $V(\Phi)=0$ in the expression for $Q_{r,cl}$ to get the expression shown in Equation~\ref{eq:3}.
+\begin{equation}
+ Q_{fr,cl} = \frac{\pi^{1/2}}{\sigma_{ext}}\left(\frac{8\pi^2k_bT}{ h^2}\right)^{3/2} \left( \frac{2 \pi k_b T}{h^2}\right)^{n/2} \frac{1}{\prod_i \sigma_i}\int_{\Phi} [D]^{1/2} d\Phi
+\label{eq:3}
+\end{equation}
+
+Usually when only free rotors are present in the molecule one would just pick the geometry of the most stable conformer and calculate the kinetic energy matrix $D$. In Cantherm we use the procedure described by Pitzer and Gwinn\cite{pitzer2} which is described as $I^{2,3}$ in the paper by East and Radom\cite{east}. 
+
+To calculate the phase space integral in Equation~\ref{eq:2} there are a few approximations that are made. 
+\begin{itemize}
+\item The principle moments of inertia of external rotation of the molecule are assumed to be independent of the geometry of the molecule. Thus Equation~\ref{eq:2} simplifies to Equation~\ref{eq:a1}, where $Q_{e,r}$ is defined in Equation~\ref{eq:r1}.
+\begin{equation}
+ Q_{fr,cl} = Q_{e,r} \left( \frac{2 \pi k_b T}{h^2}\right)^{n/2} \frac{1}{\prod_i \sigma_i}\int_{\Phi} [D_{int}]^{1/2} \exp{(-V(\Phi)/k_bT)}d\Phi
+\label{eq:a1}
+\end{equation}
+
+\item In addition to the principle moments of inertia being constant we also assume that the reduced moments of inertia $I^{2,3}$ for each internal rotational mode is also constant. Thus the kinetic energy matrix of the internal rotational modes $D_{int}$ can be taken outside the integral and the resulting equation is shown below.
+
+\begin{equation}
+ Q_{fr,cl} = Q_{e,r} \left( \frac{2 \pi k_b T}{h^2}\right)^{n/2} \prod_i\frac{[I^{2,3}_i]^{1/2}}{ \sigma_i}\int_{\Phi} \exp{(-V(\Phi)/k_bT)}d\Phi
+\label{eq:a}
+\end{equation}
+
+\item Finally the last approximation that is made is to approximate the potential $V(\Phi)$ as a sum of the potentials due to each internal rotational mode. This approach of treating hindered rotors, referred to as 1D-HR, is shown in Equation~\ref{eq:tor1}.
+
+\begin{equation}
+V(\phi_1,\phi_2,..\phi_n) = V_1(\phi_1)+V_2(\phi_2)+...+V_n(\phi_n) \label{eq:tor1} 
+\end{equation}
+\begin{equation}V_i(\phi_i)=V(\phi_1^{opt},..,\phi_i,..,\phi_n^{opt}) - V^{ref}(\phi_1^{ref},..,\phi_i^{ref},..,\phi_n^{ref}) \label{eq:tor2}\end{equation}
+The superscript $ref$ denotes that the dihedral angle has the same value as in the reference geometry and the superscript $opt$ denotes that the dihedral angle is allowed to vary to minimize the energy. Thus  $V(\phi_1^{opt},..,\phi_i,..,\phi_n^{opt})$ is the energy of the conformer in which $\phi_i$ is fixed at a value and the rest of the internal coordinates including the other dihedral angles are allowed to vary to optimize the geometry. This final assumption allows great simplification and the final expression for the partition function is given in Equation~\ref{eq:ab}, where $Q_{int,i}$ is the partition function of the $i^{th}$ internal rotational mode.
+\begin{eqnarray}
+ Q_{fr,cl} &=& Q_{e,r} \prod_i\left( \frac{2 \pi k_b T}{h^2}\right)^{1/2} \frac{[I^{2,3}_i]^{1/2}}{ \sigma_i}\int_{\phi_i} \exp{(-V(\phi_i)/k_bT)}d\phi \nonumber \\
+ &=& Q_{e,r} Q_{int,i}
+\label{eq:ab}
+\end{eqnarray}
+
+These integrals in Equation~\ref{eq:ab} can then separately be evaluated using trapezoidal rule or monte-carlo integration. For each phase a complete scan is performed and then the scan potential is fit to a fourier series of the form 
+\begin{equation}
+V_i(\phi_i)=\sum_m A_{m,i} \cos(m\phi_i)+B_{m,i}\ sin(m\phi_i).
+\label{eq:four}
+\end{equation}
+ The fitted parameters can then be used to calculate the integrals.
+
+\end{itemize}
+
+The coefficients $A_{m,i}$ and $B_{m,i}$ are solved using the method of least squares. The system of equations that is solved is expressed in Equation~\ref{eq:lsq}. The first $N$ lines correspond to the user-supplied hindered rotor potential, $V_i$, as a function of the values of the dihedral angle, $\phi_{i,j}$. The last line sets the derivative of the potential equal to zero at a dihedral angle of $0^o$.
+
+\begin{equation}
+\left[ \begin{array}{c}
+V(\phi_{i,0}) \\
+\vdots\\
+V(\phi_{i,N})\\
+0\end{array}\right] = \left[\begin{array}{ccccccc}
+1 &\cos(\phi_{i,0}) &\ldots &\cos(5\phi_{i,0}) &\sin(\phi_{i,0})&\ldots&\sin(5\phi_{i,0})\\
+\vdots&\vdots&\vdots&\vdots&\vdots&\vdots&\vdots\\
+1 &\cos(\phi_{i,N}) &\ldots &\cos(5\phi_{i,N}) &\sin(\phi_{i,N})&\ldots&\sin(5\phi_{i,N})\\
+0 &0&\ldots&0&1&\ldots&5\end{array}\right] \left[ \begin{array}{c}
+A_0 \\
+A_1\\
+\vdots\\
+A_5\\
+B_1\\
+\vdots\\
+B_5\end{array}\right] 
+\label{eq:lsq}
+\end{equation}
+
+In equation~\ref{eq:2} the frequency $\nu_i$ is not the same as the harmonic frequency that corresponds to the internal rotation. Instead we use our fitted potential along the internal mode corresponding to angle $\phi_i$ to calculate the frequency. The expression for frequency $\nu_i$ when the potential is given in the form of Equation~\ref{eq:four} is shown in Equation~\ref{eq:intI}.
+\begin{equation}
+\nu_i = \frac{-\sum_m A_{m,i} m^2 }{2\pi I^{2,3}_i}
+\label{eq:intI}
+\end{equation}
+
+ The rotational partition function and associated thermodynamic quantities for linear species are given in Equation~\ref{eq:lin}. The rotational partition function for a single atom is equal to one, $Q_{e,r} = 1$, hence its contribution to the thermodynamic quantities is zero.
+ 
+ \begin{eqnarray}
+ Q_{e,r}&=&\frac{8\pi^2I_ik_bT}{ \sigma_{ext}h^2} \nonumber \\
+S&=& k_b \left[ \ln(Q_{e,r})+1\right] \nonumber \\
+c_p&=& k_b\nonumber \\
+\Delta H &=& k_bT
+\label{eq:lin}
+ \end{eqnarray}
+ 
+\subsection{Identification of internal rotation modes}
+For small molecules the identification of internal modes of rotation is fairly straightforward. If the normal modes are visualized then usually some of them strongly resemble internal rotations. But for larger molecules the situation becomes  more complicated as the normal modes of vibration have many internal rotational modes along with other modes including bending and stretching modes mixed in. In this case identifying the correct normal mode to remove and treat as a hindered rotor can be difficult. For such cases evaluating the force constant matrix and projecting out the force constants along the internal rotation coordinate can give us a more accurate picture. 
+
+Let us assume that atom 1 and atom 2 are the two pivot atoms for an internal rotor $i$. Also assume that a list of atoms $k$ is attached to pivot atom 1 and a list of atoms $l$ is attached to pivot atom 2. Then the instantaneous displacement vector for an atom $kj$ in list $k$ is given by the vector in Equation~\ref{eq:dis}, where $p_n$ is the position vector of the $n^{th}$ atom.
+\begin{equation}
+s_{kj} = \frac{(p_{kj}-p_1) \times (p_2-p_1)}{\left|p_2-p_1\right|}
+\label{eq:dis}
+\end{equation}
+
+Similar displacement vectors can be calculated for each atom and then the $i^{th}$ internal rotation in cartesian coordinates is given by vector $v_i = [s_1 s_2 s_3 ... s_n]^T$ where $s_i$ is the instantaneous displacement vector given in Equation~\ref{eq:dis} and $n$ is the total number of atoms in the molecule. Once the vectors $v_i$ corresponding to all the internal rotors are calculated an orthonormal set $w_i$ is generated from these vectors. The projection vector $P$ can be generated from these orthonormal set $w_i$ as shown in Equation~\ref{eq:pr} where matrix $W=[w_1 w_2..]$ has column vectors $w_i$.
+
+\begin{equation}
+ P = WW^T
+\label{eq:pr}
+\end{equation}
+
+If the complete force constant matrix is $Fc$ then the new force constant matrix $Fcr$ from which the force constants along the internal rotation vectors are removed are given by Equation~\ref{eq:frc} and has $m$ fewer non-zero (or nearly non-zero) eigenvalues than $Fc$, where $m$ is the number of internal rotors.
+
+\begin{equation}
+ Fcr = (I-P)Fc(I-P)
+\label{eq:frc}
+\end{equation}
+
+This force matrix $Fcr$ can be converted into mass-weighted cartesian coordinates and diagonalized to get the eigenvalues from which the vibrational frequencies can be calculated. 
+ 
+ \subsection{Tunneling correction}
+ The traditional TST is used to calculate the rate of the reactions. The TST treats nuclei as purely classical particles and thus misses quantum effects, like tunneling. Usually to account for tunneling an ad hoc tunneling correction is added to the final TST rate constant using Wigner or the Eckhart correction as shown in Equation~\ref{eq:tun}, where $\kappa$ is the tunneling correction and $k_{TST}^{corr}$ is the corrected transition state rate constant. 
+ \begin{equation}
+ k_{TST}^{corr}(T) = \kappa(T) k_{TST}(T)
+ \label{eq:tun}
+ \end{equation}
+ 
+ The Cantherm software offers three options for tunneling corrections: Wigner, symmetric Eckart, and asymmetric Eckart. The Wigner and symmetric Eckart options only require the user to enter the species information for the reactants and the transition state; the asymmetric Eckart option also requires the species information for the products.
+ 
+ The form of the Wigner tunneling correction\cite{hirsch} is shown in Equation, where $\nu_{TS}$ is the imaginary frequency of the transition state in cm$^{-1}$, $k_b$ is the Boltzmann constant, $h$ is the Planck constant, and $T$ is the absolute temperature.
+ 
+  \begin{eqnarray}
+ \kappa(T) &=& 1 + \frac{1}{24}  \left(\frac{h|\nu_{TS}|}{k_bT}\right)^2 \nonumber\\
+&=&  1 + \frac{1}{24}  \left(\frac{1.44|\nu_{TS}|}{T}\right)^2
+ \label{eq:wig}
+ \end{eqnarray}
+ 
+ 
+ 
+ The form of the Eckart tunneling\cite{jon,eck} correction is shown in Equation~\ref{eq:eck}, where $\Delta V_1$ is the difference in thermal energy between the transition state and the reactants and $\kappa(E)$ is defined in Equation~\ref{eq:kappa}.
+ 
+\begin{eqnarray}
+\kappa(T)&=&e^{\Delta V_1/k_bT} \int_0^{\infty}e^{-E/k_bT}\kappa(E)d(E/k_bT)	\label{eq:eck}\\
+\kappa ( E ) &=& 1 - \frac{\cosh(2\pi a - 2\pi b) + \cosh(2\pi d )}{\cosh(2\pi a+2\pi b)+\cosh(2\pi d)} \label{eq:kappa}
+\end{eqnarray}
+
+The expressions $2\pi a$, $2\pi b$, and $2\pi d$ are defined in Equations \ref{eq:eq7}-\ref{eq:eq9} . The expression for $2 \pi b$ as presented by Johnston and Heicklen has been corrected, as suggested by Garrett and Truhlar\cite{gar}. The dimensionless parameter $\alpha_1$ is defined in Equation~\ref{eq:eq10}; the definition of $\alpha_2$ is similar with $\Delta V_2$, the difference in thermal energy between the transition state and the products, replacing $\Delta V_1$. $\xi$ is the dimensionless energy, normalized by $\Delta V_1$.
+\begin{eqnarray}
+2 \pi a &=& \frac{2 \sqrt{\alpha_1 \xi}}{1/\sqrt{\alpha_1} + 1/\sqrt{\alpha_2}} \label{eq:eq7}\\
+2 \pi b &=& \frac{2 \sqrt{|(\xi - 1)\alpha_1 +\alpha_2|}}{1/\sqrt{\alpha_1} + 1/\sqrt{\alpha_2}} \label{eq:eq8}\\
+2 \pi d &=& 2\sqrt{|\alpha_1 \alpha_2 - 4\pi^2 / 16|} \label{eq:eq9}\\
+\alpha_1 &=& 2\pi (\Delta V_1)/h\nu_{TS} \label{eq:eq10}
+\end{eqnarray}
+
+The integral in Equation~\ref{eq:eck} is evaluated numerically using the Clenshaw-Curtis method; this was performed in python, using the integrate.quad() module in the SciPy library. If each of the $2\pi a$, $2\pi b$, and $2\pi d$ variables is less than 200, the $\kappa(E)$ expression is evaluated as written in Equation~\ref{eq:kappa}. If not, each of the cosh() arguments is evaluated separately, i.e. $2\pi a - 2\pi b$ and $2\pi a + 2\pi b$. If none of these arguments are greater than ten, the $\kappa(E)$ expression presented in Equation~\ref{eq:eq11} is evaluated.
+\begin{equation}
+\kappa(E) = 1- \frac{e^{2\pi a-2\pi b-2\pi d} +e^{-2\pi a+2\pi b-2\pi d} +1+e^{-2*2\pi d}} {e^{2\pi a+2\pi b-2\pi d} +e^{-2\pi a-2\pi b-2\pi d} +1+e^{-2*2\pi d}}
+\label{eq:eq11}
+\end{equation}
+This expression is obtained by expressing cosh() in terms of exponentials and then multiplying the numerator and denominator by $\exp(-2\pi d)$. If at least one of the cosh()
+arguments is greater than ten, then the $\kappa(E)$ expression presented in Equation~\ref{eq:eq12} is evaluated instead.
+\begin{equation}
+\kappa(E)=1- e^{-2*2\pi a}- e^{-2*2\pi b} - e^{-2\pi a-2\pi b+2\pi d} - e^{-2\pi a- 2\pi b- 2\pi d}
+\label{eq:eq12}
+\end{equation}
+
+This expression is obtained by assuming all terms in the denominator of Equation~\ref{eq:eq11} are negligible except for the $\exp(2\pi a+2\pi b-2\pi d)$ term. Dividing this remaining term into each term in the numerator yields the equation presented.
+The limits of numeric integration are determined by evaluating the integrand from zero to one-thousand, in ten-thousand increments. The maximum of the integrand is computed and the $(E/k_bT)_{min}$ and $(E/k_bT)_{max}$ are the smallest and largest $(E/k_bT)$ values whose integrand is at least 1/1000$^{th}$ the maximum. These are the values passed to the integrate.quad() module to compute the tunneling correction.
+
+
+The Eckart tunneling correction function has been tested against the results presented by Johnston and Heicklen. This function replicates the results presented in Table~\ref{tab:tab1}, with the following exceptions:
+\begin{itemize}
+\item $\alpha_1 = 0.5; \alpha_2 = 0.5, 1, 2, 4; u^* = 2, 3, 4, 5, 6, 8, 10, 12, 16$
+\item $\alpha_1 = 1; \alpha_2 = 1, 2; u^* = 2, 3, 4, 5, 6, 8, 10, 12, 16$
+\end{itemize}
+
+$u^* = h\nu_{TS}/k_bT$; the definitions of $\alpha_1$ and $\alpha_2$ are the same as before. The function was adapted to numerically integrate using the trapezoidal rule and SimpsonÕs rule, and the same results as using the Clenshaw-Curtis method were obtained. For debugging purposes, the function was modified from using element-by-element division to using matrix division; many of the aforementioned discrepancies were now replicated. In the case of the noted discrepancies, we believe the correct numbers to be those presented in Table~\ref{tab:tab1}.
+
+\begin{table}
+\begin{center}
+\begin{tabular} {ccccccccccc}
+\hline
+$\alpha_1$ & $\alpha_2$ &2& 3& 4& 5& 6& 8& 10& 12& 16\\
+\hline
+ 0.5 &0.5& 0.338& 0.259& 0.214& 0.186& 0.168& 0.147& 0.137& 0.133& 0.135 \\
+ &1& 0.490& 0.408& 0.359& 0.328 &0.308 &0.287 &0.282 &0.286& 0.315 \\
+ &2 &0.700 &0.644 &0.611& 0.593& 0.584& 0.587& 0.608& 0.645& 0.755\\
+ & 4& 0.954& 0.963& 0.983& 1.011& 1.046& 1.135& 1.247& 1.382& 1.731\\
+ &&&&&&&&&&\\
+1	&1 &0.743 &0.703 &0.688 &0.689 &0.705 &0.767& 0.870& 1.016 &1.469 \\
+ &2 &1.085 &1.167& 1.271& 1.398& 1.548& 1.929& 2.443& 3.130& 5.263\\
+\hline
+\end{tabular}
+\end{center}
+\caption{Computed Eckart tunneling corrections as a function of $\alpha_1$ (left-most column), $\alpha_2$ (second column from left), and $u^*$ (top row). The definitions of $\alpha_1$, $\alpha_2$ and $u^*$ are in the text. The values presented differ from those presented by Johnston and Heicklen; see text for discussion.}
+\label{tab:tab1}
+\end{table}
+
+ 
+\section{Input File}
+\begin{itemize}
+ \item The first line of the file contains the keywords describing the job type to be performed, the two options are \textbf{Thermo} or \textbf{Rate}. As the name suggests the thermo keyword is used to calculate the thermodynamic quantities including entropy, heat capacity and thermal correction for a given molecule. The Rate keyword is used to calculate the rate coefficients for a reaction and also the fitted Arrhenius parameters.
+	
+If the keyword \textbf{Rate} is used then the next line has to describe whether the reaction is unimolecular or bimolecular by giving keywords \textbf{Unimol} or \textbf{Bimol} respectively. Furthermore, the next line must then describe the type of tunneling correction desired: Wigner, SymmEckart, or ASymmEckart. If the ASymmEckart is selected, the number of products must also be supplied, e.g. AsymmEckart 2.
+
+\item The next line gives the range of Temperatures at which the thermochemistry or the rates are to be evaluated. An example input line would be \textbf{Trange 300 100 15}, which tells CANTHERM that the temperatures at which calculations are to be performed are given by $T_i = T_0 + i*dT$, where $T_0=300$, $i$ takes values from 0 to $n=14$ and $dT=100$, all values are in Kelvin.
+
+\item The next line instructs Cantherm the scaling factor for all frequencies, e.g. Scale: 0.99
+
+\item The next line is \textbf{Mol 1} which is followed by information of molecule 1.
+Structure: A molecule can be specified as either NONLINEAR, LINEAR, or
+ATOM. This field is necessary in order to apply the appropriate rotational partition function
+
+\item	Geometry: The geometry of the molecule must be specified. One way to do so is to pass the location of the Gaussian output file, e.g. \\\\
+GEOM File Gaussian-geometry.log\\\\
+, to Cantherm. 
+
+The second is to copy and paste the geometry from the .log file. Search for ÒInput orientationÓ in the .log file and copy and paste the geometry information into the input file. An example geometry, for water, is shown below. The number on the line immediately after the GEOM keyword specifies how many atoms are present in the molecule.\\\\
+GEOM \\
+3 \\
+\begin{tabular}{cccccc}
+1	&8	&0 &-0.021483	&0.000000	&-0.015182\\
+2&	1	&0& 0.026269&	0.000000	&0.945620\\
+ 3&	1&	0& 0.900149& 0.000000 &-0.290892\\
+ \end{tabular}
+
+\item Force constant matrix: The force constant matrix must also be specified. The location of the Gaussian output file that contains the force constant matrix in Cartesian coordinates, e.g. \\\\
+FORCEC File Gaussian-frequency.log \\\\
+of the frequencies in wavenumber (cm$^{-1}$), e.g. the three frequencies for water,\\\\
+FREQ\\
+3\\
+1638.4678	3809.9312 \\
+3906.9015\\\\
+may be passed to Cantherm.
+If specifying the frequencies, the first line immediately following the FREQ keyword specifies the number of frequencies. Note: When running a frequency job in Gaussian, the keyword iop(7/33=1) must be supplied to ensure the force constant matrix in Cartesian coordinates is stored in the .log file.
+
+\item Energy: The 0K energy, and the level of theory at which this energy was calculated, must be specified. The 0K energy is read in from a Gaussian output file e.g.\\\\
+ENERGY File Gaussian-geom.log CBS-QB3\\\\
+or specified manually, e.g.\\\\
+ENERGY -76.337491 CBS-QB3\\\\
+
+The only levels of theory currently recognized by Cantherm are CBS-QB3 and G3.
+
+\item External symmetry: The external symmetry of the molecule must be specified, i.e. EXTSYM 2
+
+\item Electronic spin multiplicity: The electronic spin multiplicity of the molecule must be specified, i.e. NELEC 1
+
+\item Hindered Rotors: The number of hindered rotors must be specified. One way to supply Cantherm with all necessary information is as follows: ROTORS 1 listOfPivotAtoms.txt, in which the .txt file contains the following:
+
+L1: 1 2 3 \\
+L2: 3 1 2 3 4 5
+
+In the example above, the hindered rotor information is contained in the second line. The first number is the symmetry of the hindered rotor potential. The next two numbers correspond to the two pivot atoms, atom1 and atom2. The identity of these atoms can be determined by viewing a molecule in Gaussian, right-clicking, and then selecting ÒLabelsÓ. The remaining numbers, after atom2, correspond to the atom IDs which should be associated with the pivot atom atom2Õs segment of the molecule. These IDs are important when computing the moment of inertia $I^{(2,3)}$.
+
+The next line in the input file deals with the hindered rotor potentials: \textbf{POTENTIAL separable file} hinderedrotor-1.txt; POTENTIAL is a keyword for the input file, \emph{separable} assumes all of the hindered rotors are uncoupled, \emph{file} informs Cantherm to look for the potential in the file named \emph{hinderedrotor-1.txt}. The .txt file can be generated from Gaussian; after opening the results of a SCAN job, select ÒResultsÓ$\rightarrow$ÒScanÓ. In the graph that pops up, right-click and select ÒSave Data...Ó
+
+\item Bond additivity corrections: The number of particular bonds may be specified by the user; the order is: C-H, C-C, C=C, C$\equiv$C, O-H, C-O, and C=O
+
+\end{itemize}
+
+\section{Test Files}
+Two example files are provided in \texttt{Examples}, the first calculates the reaction rate expression for the dehydration reaction: s-Butanol = 1-Butene + H2O, using an asymmetric Eckart tunneling correction. The second calculates the thermochemistry of s-Butanol.
+These examples are placed in directories \texttt{Examples/ReactionsRate} and \texttt{Examples/Thermochemistry} respectively. To execute these example files go to the relevant directories and execute the command\\\\
+
+\texttt{> ../../CanTherm.py input.dat}\\\\
+
+To successfully execute these commands the computer needs to have python 2.5 and also has scipy and numpy installed on it. The output file generated is called \texttt{cantherm.out}, which contains all the relevant thermochemical and rate expressions.
+
+\section{How to cite}
+
+Sharma, S.; Harper, M.R.; Green, W.H.; CANTHERM v1.0
+
+\bibliography{references}
+
+\end{document}

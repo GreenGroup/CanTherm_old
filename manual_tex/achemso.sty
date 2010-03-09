@@ -1,0 +1,202 @@
+%%
+%% This is file `achemso.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% achemso.dtx  (with options: `package')
+%%  ----------------------------------------------------------------
+%%  achemso --- Support for submissions to American  Chemical
+%%    Society journals
+%%  Maintained by Joseph Wright
+%%  E-mail: joseph.wright@morningstar2.co.uk
+%%  Released under the LaTeX Project Public License v1.3c or later
+%%  See http://www.latex-project.org/lppl.txt
+%%  ----------------------------------------------------------------
+%% 
+\NeedsTeXFormat{LaTeX2e}
+\def\acs@id$#1: #2.#3 #4 #5-#6-#7 #8 #9${%
+  \def\acs@ver{#5/#6/#7\space v3.0a\space}}
+\acs@id$Id: achemso.dtx 32 2008-08-22 08:09:56Z joseph $
+\ProvidesPackage{achemso}
+  [\acs@ver Support for ACS journals]
+\@ifclassloaded{achemso}{}
+  {\PackageInfo{achemso}{When using the achemso bundle
+     for\MessageBreak submission of articles to the ACS,
+     please\MessageBreak use the achemso document class.}}
+\RequirePackage{notes2bib,mciteplus,xkeyval}
+\newcommand*{\acs@tempa}{}
+\newcommand*{\acs@tempb}{}
+\newcount\acs@tempcnta
+\newcount\acs@tempcntb
+\newcount\acs@tempcntc
+\newif\ifacs@switch
+\define@boolkeys[acs]{key}[acs@]{
+  abbreviate,
+  biochem,
+  biochemistry,
+  super,
+  usetitle}[true]
+\let\acs@key@biochem\acs@key@biochemistry
+\define@cmdkeys[acs]{key}[acs@]{
+  maxauthors,
+  journal,
+  manuscript}
+\define@choicekey*[acs]{key}{biblabel}
+  [\acs@tempa\acs@tempb]
+  {plain,brackets,fullstop,period}
+  {\ifcase\acs@tempb\relax
+     \def\@biblabel##1{##1}\or
+     \def\@biblabel##1{(##1)}\or
+     \def\@biblabel##1{##1.}\or
+     \def\@biblabel##1{##1.}\fi}
+\newcommand*{\acs@setkeys}{\setkeys[acs]{key}}
+\acs@setkeys{
+  maxauthors=15,
+  super=true,
+  biblabel=brackets}
+\ProcessOptionsX*[acs]<key>
+\newcommand*{\acs@cfgextension}{cfg}
+\newcommand*{\acs@prefix}{acs-}
+\newcommand*{\acs@validtype}[2][article]{%
+  \acs@switchfalse
+  \@ifundefined{acs@manuscript}
+    {\newcommand*{\acs@manuscript}{#1}}
+    {\@for\acs@tempa:=#2\do{%
+      \ifx\acs@tempa\acs@manuscript
+        \acs@switchtrue
+      \fi}
+    \ifacs@switch\else
+      \ClassWarning{achemso}{Invalid manuscript type:
+        \MessageBreak changing to #1}%
+      \renewcommand*{\acs@manuscript}{#1}%
+    \fi}}
+\newcommand*{\acs@killabstract}{%
+  \let\abstract\acs@startgobble}
+\begingroup
+  \catcode`{=\active
+  \catcode`}=12\relax
+  \catcode`(=1\relax
+  \catcode`)=2\relax
+  \gdef\acs@startgobble(%
+    \ClassWarning(achemso)
+      (Abstract not allowed for this\MessageBreak
+       manuscript type)%
+    \@bsphack
+    \catcode`{=\active
+    \catcode`}=12\relax
+    \let\end\fi
+    \let{\acs@endgobble%}
+    \iffalse)%{
+  \gdef\acs@endgobble#1}(%
+    \def\acs@tempa(#1)%
+    \ifx\acs@tempa\@currenvir
+      \@Esphack\endgroup
+        \if@ignore
+          \global\@ignorefalse\ignorespaces
+        \fi
+     \else
+       \expandafter\acs@iffalse
+    \fi)
+\endgroup
+\newcommand*{\acs@iffalse}{\iffalse}
+\@ifclassloaded{achemso}
+  {\@ifundefined{acs@journal}
+     {\ClassInfo{achemso}{No target journal specified:
+       \MessageBreak using package defaults}%
+     \@ifundefined{acs@manuscript}{}
+       {\ClassWarning{achemso}{The `type' option is only
+          applicable\MessageBreak when the `journal' option is
+          also specified}}}%
+     {\InputIfFileExists{\acs@journal.\acs@cfgextension}
+        {\ClassInfo{achemso}{Loading configuration for
+          journal\MessageBreak \acs@journal}}
+        {\ClassWarning{achemso}{Unknown journal
+          `\acs@journal'}%
+         \InputIfFileExists{jacsat.\acs@cfgextension}
+           {\ClassInfo{achemso}{Loading jacs
+            configuration\MessageBreak as a fall-back}}
+           {\ClassError{achemso}{Could not load
+             jacsat.cfg}{This is a core file of\MessageBreak
+             the achemso bundle: something is wrong with
+             \MessageBreak  your installation}}}}}%
+  {\@ifundefined{acs@journal}{}
+     {\PackageWarning{achemso}{The `journal' option is only
+        applicable\MessageBreak when using the achemso document
+        class}}%
+   \@ifundefined{acs@manuscript}{}
+     {\PackageWarning{achemso}{The `type' option is only
+       applicable\MessageBreak when using the achemso document
+        class}}}
+\ifacs@super
+  \RequirePackage[sort&compress,numbers,super]{natbib}
+\else
+  \RequirePackage[sort&compress,numbers,round]{natbib}
+\fi
+\RequirePackage{natmove}
+\renewcommand*{\nmv@activate}{%
+  \let\nmv@natcitex\@citex
+  \let\@citex\nmv@citex
+  \let\nmv@cite\cite
+  \renewcommand*{\cite}[2][]{%
+    \nmv@ifmtarg{##1}
+      {\nmv@citetrue
+       \nmv@cite{##2}}
+      {\nocite{##2}%
+       \bibnote{Ref.~\citenum{##2}, ##1}}}}
+\renewcommand*{\nmv@notactivate}{%
+  \let\nmv@cite\cite
+  \renewcommand*{\cite}[2][]{%
+    \nmv@ifmtarg{##1}
+      {\nmv@cite{##2}}
+      {\nocite{##2}%
+       \bibnote{Ref.~\citenum{##2}, ##1}}}}
+\ifacs@biochemistry
+  \newcommand*{\acs@bibstyle}{biochem}
+\else
+  \newcommand*{\acs@bibstyle}{achemso}
+\fi
+\expandafter\bibliographystyle\expandafter{\acs@bibstyle}
+\let\acs@bibliographystyle\bibliographystyle
+\AtBeginDocument{
+  \@ifpackageloaded{chapterbib}
+    {\renewcommand*{\bibliographystyle}[1]{%
+      \expandafter\acs@bibliographystyle\expandafter{%
+        \acs@bibstyle}}}}
+\renewcommand*{\bibliographystyle}[1]{%
+  \PackageWarning{achemso}{\string\bibliographystyle\space
+    ignored}}
+\ifacs@super\else
+  \newcommand*{\citenumfont}{\textit}
+\fi
+\edef\acs@msg{%
+  This is an auxiliary file used by the `achemso' package.^^J%
+  This file may safely be deleted. It will be recreated as
+  required.^^J}
+\newcommand*{\acs@writebib}{%
+  \immediate\openout\acs@out\acs@stream\relax
+  \immediate\write\acs@out{\acs@msg}%
+  \edef\acs@tempa##1##2{\space\space##1\space=\space"##2",^^J}%
+  \immediate\write\acs@out{%
+    @Control\string{achemso-control,^^J%
+    \acs@tempa{ctrl-use-title}{\ifacs@usetitle yes\else no\fi}%
+    \acs@tempa{ctrl-etal-number}{\acs@maxauthors}%
+    \string}^^J}}
+\if@filesw
+  \newwrite\acs@out
+  \newcommand*\acs@stream{\acs@prefix\jobname.bib}
+  \acs@writebib
+  \AtBeginDocument{\immediate\closeout\acs@out}
+\fi
+\AtBeginDocument{
+  \let\acs@bibliography\bibliography
+  \renewcommand*{\bibliography}[1]{%
+    \acs@bibliography{\acs@prefix\jobname,#1}}}
+\g@addto@macro{\document}{%
+  \if@filesw
+    \immediate\write\@auxout{%
+      \string\citation\string{achemso-control\string}}%
+  \fi}
+\endinput
+%%
+%% End of file `achemso.sty'.
