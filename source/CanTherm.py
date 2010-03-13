@@ -145,7 +145,7 @@ def main():
      H += Thermal[i*len(Temp)+0]
 
      print '%12.2f'%H + '%12.2f'%Entropy[i*len(Temp)+0],
-     for c in range(1,8):
+     for c in range(1,len(Temp)):
         print '%12.2f'%Cp[i*len(Temp)+c],
      print '\n'
 
