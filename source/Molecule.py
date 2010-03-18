@@ -782,7 +782,7 @@ class Molecule:
                ent[iT] = ent[iT] + R*math.log(sum)+vsum/sum/T-R*log(self.rotors[irot+1].symm)
                dH[iT] = dH[iT] + vsum/sum/1.0e3
                cp[iT] = cp[iT] + (v2sum*sum-vsum**2)/sum**2/R/T**2
-               parti[iT] = parti[iT] *sum
+               parti[iT] = parti[iT] *sum/self.rotors[irot+1].symm
                
                #print (v2sum*sum-vsum**2)/sum**2/R/T**2,
 
