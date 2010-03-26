@@ -78,11 +78,12 @@ def readInputFile(file,data):
 #read Temperature range
     tokens = line.split()
     if tokens[0].upper() == 'TLIST:':
-	#line = readMeaningfulLine(file);
-	numTemp = int(tokens[1])
+        data.fitcp = False
+        #line = readMeaningfulLine(file);
+        numTemp = int(tokens[1])
         i = 0
         while i < numTemp:
-	    #line = readMeaningfulLine(file)
+            #line = readMeaningfulLine(file)
             #tokens = line.split()
             #i = i+ len(tokens)
             #for j in tokens:
@@ -93,6 +94,7 @@ def readInputFile(file,data):
             print 'More Temperatures than ', numTemp, ' are specified'
 
     elif tokens[0].upper() == 'TRANGE:':
+        data.fitcp = False
         #line = readMeaningfulLine(file);
         #tokens = line.split()         
         T0 = float(tokens[1])
@@ -100,9 +102,25 @@ def readInputFile(file,data):
         numTemp = int(tokens[3])
         for i in range(numTemp):
             data.Temp.append(T0+i*dT)
+            
+    elif line.split()[0].upper() == 'NASA':
+        data.fitcp = True
+        Tref = float('298')
+        data.Temp.append(Tref)
+        T0 = float('300')
+        dT = float('50')
+        for i in range(34):
+            data.Temp.append(float(T0 + i*dT))
+        T0 = float('2000')
+        dT = float('250')
+        for i in range(17):
+            data.Temp.append(float(T0 + i*dT))
+
+
     else:
         print 'Temperaure information not given: Either use keyword Tlist or Trange'
         exit()
+
 
 #read scaling factor
     line = readMeaningfulLine(file)
@@ -139,7 +157,7 @@ def readInputFile(file,data):
 def readMeaningfulLine(file):
     readMore = True
     while (readMore):
-	line = file.readline()
+        line = file.readline()
         index = line.find('!')
         line = line[:index]
         if (len(line.split()) != 0):
@@ -366,7 +384,13 @@ def readEnergy(file, string):
      Energy=re.search('CBS-QB3 \(0 K\)= '+' \s*([\-0-9.]+)',com).group(1)
    if string == 'g3':
      Energy=re.search('G3\(0 K\)= '+' \s*([\-0-9.]+)',com).group(1)
-  
+   if string == 'klip_1':
+     Energy=re.search('QCI= '+' \s*([\-0-9.]+)',com).group(1)
+   if string == 'klip_2':
+      Energy=re.search('QCI= '+' \s*([\-0-9.]+)',com).group(1)
+   if string == 'klip_2_cc':
+      Energy=re.search('CC= '+' \s*([\-0-9.]+)',com).group(1)
+ 
    return float(Energy)
 
 def readHFEnergy(fileName):

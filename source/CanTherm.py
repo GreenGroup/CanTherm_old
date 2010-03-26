@@ -29,6 +29,7 @@ import pdb
 import math
 from numpy import *
 from scipy import *
+import FitCp 
 
 class CanTherm:
  CalcType = ''
@@ -46,6 +47,15 @@ class CanTherm:
  atomEcbsqb3 = {'H':-0.499818 , 'N':-54.520543 , 'O':-74.987624 , 'C':-37.785385 , 'P':-340.817186}
  #G3 E for H, N, O, C, P
  atomEg3 = {'H':-0.5010030, 'N':-54.564343, 'O':-75.030991, 'C':-37.827717, 'P':-341.116432}
+ #Klip QCI(dz,tz)+ MP2(tz,qz) E for H, N, O, C, P
+ #atomEKlip_1 = {'H':-0.49991705, 'O':-74.99507456, 'C':-37.78778408,}
+ atomEKlip_1 = {'H':-0.50003976, 'O':-75.00915718, 'C':-37.79249556,} 
+#Klip QCI(tz,qz) E for H, N, O, C, P
+#atomEKlip_2 = {'H':-0.50003976, 'O':-75.00692740, 'C':-37.79044862,}
+ atomEKlip_2 = {'H':-0.50003976, 'O':-75.00692746, 'C':-37.79044863,}
+#Klip CCSD(T)(tz,qz) E for H, N, O, C, P
+ atomEKlip_2_cc = {'H':-0.50003976, 'O':-75.00681155, 'C':-37.79029443,}
+
  #expt H contains H + TC + SOC (spin orbital correction)
  atomH = {'H':50.62 , 'N':111.49 , 'O':58.163 , 'C':169.8147 }
  #BAC for C-H    C-C   C=C    C.TB.C  O-H   C-O   C=O   N.TB.N O=O   H-H  C.TB.N
@@ -126,6 +136,12 @@ def main():
         atomE = data.atomEcbsqb3
      if molecule.Etype == 'g3':
         atomE = data.atomEg3
+     if molecule.Etype == 'klip_1':
+        atomE = data.atomEKlip_1
+     if molecule.Etype == 'klip_2':
+        atomE = data.atomEKlip_2
+     if molecule.Etype == 'klip_2_cc':
+        atomE = data.atomEKlip_2_cc
      for atom in atoms:
          H -= atomE[atom]
          atomsH += data.atomH[atom]
@@ -152,6 +168,8 @@ def main():
      #for c in range(len(Temp)):
         #print '%12.2e'%Partition[i*len(Temp)+c],
      #print
+     if data.fitcp:
+       FitCp.FitHeatCapacity(Temp,Cp, molecule.linearity, molecule.Freq, molecule.numRotors, molecule.R, oFile)
 
   if len(data.MoleculeList) == 1:
      return

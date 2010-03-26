@@ -76,16 +76,17 @@ def main():
        harmonic = mol.Harmonics[i]
        rot = mol.rotors[i+1]
        symm = symm * mol.rotors[i+1].symm
+       print " "
        print "CartesianP"
        print "NMAtomsD"
        print len(rot.atomsList)," ", len(rot.nonRotorList)   
        print "PositionL"
        for j in rot.atomsList:
-         print float(Mass[j-1]), "%12.3f"%geom[j-1,0], "%12.3f"%geom[j-1,1], "%12.3f"%geom[j-1,2]
-       print float(Mass[rot.pivot2-1]), "%12.3f"%geom[rot.pivot2-1,0], "%12.3f"%geom[rot.pivot2-1,1], "%12.3f"%geom[rot.pivot2-1,2]
+         print "%12.6f"%float(Mass[j-1]), "%12.3f"%geom[j-1,0], "%12.3f"%geom[j-1,1], "%12.3f"%geom[j-1,2]
+       print "%12.6f"%float(Mass[rot.pivot2-1]), "%12.3f"%geom[rot.pivot2-1,0], "%12.3f"%geom[rot.pivot2-1,1], "%12.3f"%geom[rot.pivot2-1,2]
        for j in rot.nonRotorList:
          if (j != rot.pivot2):
-           print float(Mass[j-1]), "%12.3f"%geom[j-1,0], "%12.3f"%geom[j-1,1], "%12.3f"%geom[j-1,2]
+           print "%12.6f"%float(Mass[j-1]), "%12.3f"%geom[j-1,0], "%12.3f"%geom[j-1,1], "%12.3f"%geom[j-1,2]
 
        print "HindTypeD"
        print "10"
@@ -93,20 +94,21 @@ def main():
        print "5 5"
        print "HindParL"
        for i in range(5):
-          print harmonic.Kcos[i]*349.8, i+1
+          print '%12.4e'%harmonic.Kcos[i], i+1
        for i in range(5):
-          print harmonic.Ksin[i]*349.8, i+1
+          print '%12.4e'%harmonic.Ksin[i], i+1
 
        print "0.0"
     print
   print "SigRotD"
   print symm 
+  print " "
   print "CartesianP"
   print "NAtomsD"
   print len(mol.Mass)
   print "PositionL"
   for i in range(len(Mass)):
-    print float(Mass[i]), "%12.3f"%geom[i,0], "%12.3f"%geom[i,1], "%12.3f"%geom[i,2]
+    print "%12.6f"%float(Mass[i]), "%12.3f"%geom[i,0], "%12.3f"%geom[i,1], "%12.3f"%geom[i,2], '!#',i+1
 
 if __name__ == "__main__":
    main()
