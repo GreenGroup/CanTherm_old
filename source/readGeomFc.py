@@ -78,6 +78,7 @@ def readInputFile(file,data):
 #read Temperature range
     tokens = line.split()
     if tokens[0].upper() == 'TLIST:':
+        data.fitcp = False
         #line = readMeaningfulLine(file);
         numTemp = int(tokens[1])
         i = 0
@@ -93,6 +94,7 @@ def readInputFile(file,data):
             print 'More Temperatures than ', numTemp, ' are specified'
 
     elif tokens[0].upper() == 'TRANGE:':
+        data.fitcp = False
         #line = readMeaningfulLine(file);
         #tokens = line.split()         
         T0 = float(tokens[1])
@@ -100,9 +102,25 @@ def readInputFile(file,data):
         numTemp = int(tokens[3])
         for i in range(numTemp):
             data.Temp.append(T0+i*dT)
+            
+    elif line.split()[0].upper() == 'NASA':
+        data.fitcp = True
+        Tref = float('298')
+        data.Temp.append(Tref)
+        T0 = float('300')
+        dT = float('50')
+        for i in range(34):
+            data.Temp.append(float(T0 + i*dT))
+        T0 = float('2000')
+        dT = float('250')
+        for i in range(17):
+            data.Temp.append(float(T0 + i*dT))
+
+
     else:
         print 'Temperaure information not given: Either use keyword Tlist or Trange'
         exit()
+
 
 #read scaling factor
     line = readMeaningfulLine(file)

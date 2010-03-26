@@ -29,6 +29,7 @@ import pdb
 import math
 from numpy import *
 from scipy import *
+import FitCp 
 
 class CanTherm:
  CalcType = ''
@@ -167,6 +168,8 @@ def main():
      #for c in range(len(Temp)):
         #print '%12.2e'%Partition[i*len(Temp)+c],
      #print
+     if data.fitcp:
+       FitCp.FitHeatCapacity(Temp,Cp, molecule.linearity, molecule.Freq, molecule.numRotors, molecule.R, oFile)
 
   if len(data.MoleculeList) == 1:
      return
