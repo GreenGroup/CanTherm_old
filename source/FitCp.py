@@ -165,52 +165,20 @@ def getNASA(T_inter, Temp, Cp, R):
 
 #------------- find the NASA T_inter
 def fitNASAT(T_inter0, Temp, Cp, R):
-
-    
+    """Find the optimal intermediate temperature for the NASA polynomials."""
     def fitme(T_inter, Temp, Cp, R):
-
-        Y = matrix(zeros((len(Temp)+3,1),dtype=float))
-        X = matrix(zeros((len(Temp)+3,10),dtype=float))
-    
-        for i in range(len(Temp)):
-            Y[i,0] = float(Cp[i]/R)
-        
-            if Temp[i] <= T_inter:
-                for j in range(5):
-                    X[i,j] = float(Temp[i])**j
-            elif Temp[i] >= T_inter:
-                for j in range(5):
-                    X[i,j+5] = float(Temp[i])**j
-            else:
-                print 'WTF?'   
-        
-        # continuity
-        for j in range(5):
-            X[len(X)-3,j] = float(T_inter)**j        
-            X[len(X)-3,j+5] = -float(T_inter)**j     
-
-        # first derivative is zero
-        for j in range(1,5):
-            X[len(X)-2,j] = j*float(T_inter)**(j-1)        
-            X[len(X)-2,j+5] = -j*float(T_inter)**(j-1)
- 
-        # second derivative is zero
-        for j in range(2,5):
-            X[len(X)-1,j] = j*(j-1)*float(T_inter)**(j-2)        
-            X[len(X)-1,j+5] = -j*(j-1)*float(T_inter)**(j-2)
-         
-        XtX = transpose(X)*X
-        XtY = transpose(X)*Y
-        z = linalg.inv(XtX)*XtY
+        z=getNASA(T_inter, Temp, Cp, R)
         Cp_NASA = []
         minimize_me = []
         for i in range(len(Temp)):
-            if Temp[i] <= float(T_inter):
-               Cp_NASA.append( R*(z[0] + z[1] * Temp[i] +  z[2] * Temp[i]**2 + z[3] * Temp[i]**3 +  z[4] * Temp[i]**4 ) )
+            T = Temp[i]
+            T2 = T*T
+            if T <= float(T_inter):
+               Cp_NASA.append( R*(z[0] + z[1] * T +  z[2] * T2 + z[3] * T*T2 +  z[4] * T2*T2 ) )
                minimize_me.append( (Cp[i] - Cp_NASA[i]) )
-            elif Temp[i] > float(T_inter):
-               Cp_NASA.append( R*(z[5] + z[6] * Temp[i] +  z[7] * Temp[i]**2 + z[8] * Temp[i]**3 +  z[9] * Temp[i]**4 ) )
-               minimize_me.append( (Cp[i] - Cp_NASA[i]) )           
+            elif T > float(T_inter):
+               Cp_NASA.append( R*(z[5] + z[6] * T +  z[7] * T2 + z[8] * T*T2 +  z[9] * T2*T2 ) )
+               minimize_me.append( (Cp[i] - Cp_NASA[i]) ) 
             else:
                 print 'WTF?' 
         minimize_me = sum( minimize_me[:])**2 
