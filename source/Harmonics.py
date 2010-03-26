@@ -30,6 +30,7 @@ class Harmonics:
     Kcos = []
     Ksin = []
     A = 0.0
+    Barrier_Height = 0.0
 
     def __init__(self,numFit, Kcos, Ksin):
         self.numFit = numFit
@@ -106,6 +107,7 @@ class Harmonics:
         #self.A = float(b[0])
         self.A = - sum(self.Kcos[:])
         self.numFit = 5
+        self.Barrier_Height = max(potentials)
 
         #print self.Kcos
         #print self.Ksin
