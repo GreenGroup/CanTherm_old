@@ -366,7 +366,13 @@ def readEnergy(file, string):
      Energy=re.search('CBS-QB3 \(0 K\)= '+' \s*([\-0-9.]+)',com).group(1)
    if string == 'g3':
      Energy=re.search('G3\(0 K\)= '+' \s*([\-0-9.]+)',com).group(1)
-  
+   if string == 'klip_1':
+     Energy=re.search('QCI= '+' \s*([\-0-9.]+)',com).group(1)
+   if string == 'klip_2':
+      Energy=re.search('QCI= '+' \s*([\-0-9.]+)',com).group(1)
+   if string == 'klip_2_cc':
+      Energy=re.search('CC= '+' \s*([\-0-9.]+)',com).group(1)
+ 
    return float(Energy)
 
 def readHFEnergy(fileName):

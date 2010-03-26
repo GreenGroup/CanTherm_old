@@ -148,6 +148,12 @@ class Molecule:
                self.Etype = 'cbsqb3'
             elif (tokens[3].upper() == 'G3'):
                self.Etype = 'g3'
+            elif (tokens[3].upper() == 'KLIP_1'):
+               self.Etype = 'klip_1'
+            elif (tokens[3].upper() == 'KLIP_2'):
+               self.Etype = 'klip_2'
+            elif (tokens[3].upper() == 'KLIP_2_CC'):
+               self.Etype = 'klip_2_cc'
             self.Energy = readGeomFc.readEnergy(energyFile, self.Etype)
             print self.Energy, self.Etype
         elif (len(tokens) == 3):
@@ -156,6 +162,12 @@ class Molecule:
                self.Etype = 'cbsqb3'
             elif (tokens[2].upper() == 'G3'):
                self.Etype = 'g3'
+            elif (tokens[2].upper() == 'Klip_1'):
+               self.Etype = 'klip_1'
+            elif (tokens[2].upper() == 'Klip_2'):
+               self.Etype = 'klip_2'
+            elif (tokens[2].upper() == 'KLIP_2_CC'):
+               self.Etype = 'klip_2_cc'
             print self.Etype.upper(),' Energy: ',self.Energy
         else :
             print 'Cannot read the Energy'
