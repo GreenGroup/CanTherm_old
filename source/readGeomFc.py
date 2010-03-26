@@ -78,11 +78,11 @@ def readInputFile(file,data):
 #read Temperature range
     tokens = line.split()
     if tokens[0].upper() == 'TLIST:':
-	#line = readMeaningfulLine(file);
-	numTemp = int(tokens[1])
+        #line = readMeaningfulLine(file);
+        numTemp = int(tokens[1])
         i = 0
         while i < numTemp:
-	    #line = readMeaningfulLine(file)
+            #line = readMeaningfulLine(file)
             #tokens = line.split()
             #i = i+ len(tokens)
             #for j in tokens:
@@ -139,7 +139,7 @@ def readInputFile(file,data):
 def readMeaningfulLine(file):
     readMore = True
     while (readMore):
-	line = file.readline()
+        line = file.readline()
         index = line.find('!')
         line = line[:index]
         if (len(line.split()) != 0):

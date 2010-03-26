@@ -95,10 +95,10 @@ for files in inputFiles:
         for k in range(5):
             harmonics.write(str(float(b[k+1]))+'\t'+str( float(b[k+6]))+'\n')
         harmonics.write('\n')
-        #g('set data style linespoints')
-        #g.plot(potgiven,pot)
+#        g('set data style linespoints')
+#        g.plot(potgiven,pot)
 
-        #raw_input("Enter...")
+#        raw_input("Enter...")
                           
 
     harmonics.write('\n')
