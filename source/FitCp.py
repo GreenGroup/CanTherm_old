@@ -169,19 +169,19 @@ def fitNASAT(T_inter0, Temp, Cp, R):
     def fitme(T_inter, Temp, Cp, R):
         z=getNASA(T_inter, Temp, Cp, R)
         Cp_NASA = []
-        minimize_me = []
+        minimize_me = zeros(len(Temp))
         for i in range(len(Temp)):
             T = Temp[i]
             T2 = T*T
             if T <= float(T_inter):
                Cp_NASA.append( R*(z[0] + z[1] * T +  z[2] * T2 + z[3] * T*T2 +  z[4] * T2*T2 ) )
-               minimize_me.append( (Cp[i] - Cp_NASA[i]) )
+               minimize_me[i] = float(Cp[i] - Cp_NASA[i])
             elif T > float(T_inter):
                Cp_NASA.append( R*(z[5] + z[6] * T +  z[7] * T2 + z[8] * T*T2 +  z[9] * T2*T2 ) )
-               minimize_me.append( (Cp[i] - Cp_NASA[i]) ) 
+               minimize_me[i] = float(Cp[i] - Cp_NASA[i])
             else:
                 print 'WTF?' 
-        minimize_me = sum( minimize_me[:])**2 
+        minimize_me = sum( minimize_me * minimize_me)
             
         return minimize_me       
                 
