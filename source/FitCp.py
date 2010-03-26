@@ -45,15 +45,15 @@ def getWilhoit(Temp, Cp, linearity, Freq, numRotors, R, B):
     Y = matrix(zeros((len(Cp),1),dtype=float))
     X = matrix(zeros((len(Cp),4),dtype=float))
     reduced_cp = []
-    y = []
+    
 #    B = float('500')
     for i in range(len(Temp)):
         reduced_cp.append((float(Cp[i]) - Cp_0)/(Cp_inf - Cp_0))
-        y.append(Temp[i]/(Temp[i]+B))
+        y = (Temp[i]/(Temp[i]+B))
 
-        Y[i,0] = (reduced_cp[i] - y[i]**2)
+        Y[i,0] = (reduced_cp[i] - y*y)
         for j in range(4):
-            X[i,j] = (y[i]**3 - y[i]**2) * y[i]**j
+            X[i,j] = (y*y*y - y*y) * y**j
     
     XtX = transpose(X)*X
     XtY = transpose(X)*Y
@@ -69,56 +69,24 @@ def getWilhoit(Temp, Cp, linearity, Freq, numRotors, R, B):
 
 #------------- find the Wilhoit B
 def fitWilhoitB(Temp, Cp, linearity, Freq, numRotors, R, B0):
-    if linearity == 'Linear':
-        Cp_0 = R*float(1.5 + 1.0 + 1.0);
-    elif linearity == 'Nonlinear':
-        Cp_0 = R*float(1.5 + 1.5 + 1.0);
-    else:    
-        print 'linearity not found'
-           
-    Cp_inf = R*float(len(Freq) + numRotors)
-    
-    def fitme(B, Temp, Cp, Cp_0, Cp_inf, R):
-            
-        Y = matrix(zeros((len(Cp),1),dtype=float))
-        X = matrix(zeros((len(Cp),4),dtype=float))
-        
-        reduced_cp = []
-        y = []
-        for i in range(len(Temp)):
-            reduced_cp.append((float(Cp[i]) - Cp_0)/(Cp_inf - Cp_0))
-            y.append(Temp[i]/(Temp[i]+B))
-
-            Y[i,0] = (reduced_cp[i] - y[i]**2)
-            for j in range(4):
-                X[i,j] = (y[i]**3 - y[i]**2) * y[i]**j
-    
-        XtX = transpose(X)*X
-        XtY = transpose(X)*Y
-        z = linalg.inv(XtX)*XtY
-    
-        B = B
-        a = float(z[0])
-        b = float(z[1])
-        c = float(z[2])
-        d = float(z[3])
-        intermediate = []
+    """Find the optimal B for the Wilhoit fit"""    
+    def fitme(B):
+        Cp_0, Cp_inf, B, a, b, c, d = getWilhoit(Temp, Cp, linearity, Freq, numRotors, R, B)
         Cp_Wilhoit = []
-        minimize_me = []
+        minimize_me = zeros(len(Temp))
         for i in range(len(Temp)):
-#        for i in range(30):       
-               intermediate.append( (y[i]-1.0) * ( a + b * y[i] + c * y[i]**2 + d * y[i]**3) )
-               Cp_Wilhoit.append( Cp_0 + (Cp_inf - Cp_0) * y[i]**2 * (1 + intermediate[i]))
-               minimize_me.append( (Cp[i] - Cp_Wilhoit[i]) )
-        minimize_me = sum( minimize_me[:])**2 
+            y = Temp[i]/(Temp[i]+B)
+            intermediate = ( (y-1.0) * ( a + b * y + c * y*y + d * y*y*y) )
+            Cp_Wilhoit.append( Cp_0 + (Cp_inf - Cp_0) * y*y * (1 + intermediate))
+            minimize_me[i] = float( (Cp[i] - Cp_Wilhoit[i]) )
+        minimize_me = sum( minimize_me * minimize_me )
         return minimize_me       
                 
  #   result = fsolve(fitme, B0, args=(Temp, Cp, Cp_0, Cp_inf, R))
-    result = fminbound(fitme, 300.0, 3000.0, args=(Temp, Cp, Cp_0, Cp_inf, R))
+    result = fminbound(fitme, 300.0, 3000.0)
     print 'Wilhoit T = ', result
-
+    
     return result
-
 
 #---------- End Wilhoit Section --------------------
 
