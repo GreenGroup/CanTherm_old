@@ -25,9 +25,19 @@ def FitHeatCapacity(Temp, Cp, linearity, Freq, numRotors, R,oFile):
        T_inter = fitNASAT(T_inter, Temp, Cp, R)
 
        z1 = getNASA(T_inter, Temp, Cp, R)
+
+
+       oFile.write('NASA Parameters: \n')
+       oFile.write('Intermediate Temperature= ' + str(T_inter) + '\n')
+       for j in range(10):
+              oFile.write(str(float(z1[j])) + '\n') 
+
+
+
+
        z2 = getShomate(Temp, Cp, R)
 
-       plot_results(Temp,Cp, R, Cp_0, Cp_inf, B, a, b, c, d, T_inter, z1, z2)       
+#       plot_results(Temp,Cp, R, Cp_0, Cp_inf, B, a, b, c, d, T_inter, z1, z2)       
        
 #-------------- Wilhoit Section
 #--------------- given a Wilhoit B, find the other parameters
