@@ -119,9 +119,11 @@ class Harmonics:
            pot.append([angle,self.getPotential(angle)])
         #   print '%14.2f'%potentials[i]+'%14.3f'%pot[i]
         #print
-        #g=Gnuplot.Gnuplot()
+#        g=Gnuplot.Gnuplot(persist=1)
         #g('set data style linespoints')
-        #g.plot(potgiven,pot)
+#        plot1 = Gnuplot.PlotItems.Data(potgiven, with_="points 3", title=None)
+# 	plot2 = Gnuplot.PlotItems.Data(pot, with_="lines", title="fit" )
+# 	g.plot(plot1, plot2)
         #raw_input('Please press enter to continue ...\n')
  
         
