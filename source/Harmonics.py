@@ -30,6 +30,7 @@ class Harmonics:
     Kcos = []
     Ksin = []
     A = 0.0
+    Barrier_Height = 0.0
 
     def __init__(self,numFit, Kcos, Ksin):
         self.numFit = numFit
@@ -106,6 +107,7 @@ class Harmonics:
         #self.A = float(b[0])
         self.A = - sum(self.Kcos[:])
         self.numFit = 5
+        self.Barrier_Height = max(potentials)
 
         #print self.Kcos
         #print self.Ksin
@@ -117,9 +119,11 @@ class Harmonics:
            pot.append([angle,self.getPotential(angle)])
         #   print '%14.2f'%potentials[i]+'%14.3f'%pot[i]
         #print
-        #g=Gnuplot.Gnuplot()
+#        g=Gnuplot.Gnuplot(persist=1)
         #g('set data style linespoints')
-        #g.plot(potgiven,pot)
+#        plot1 = Gnuplot.PlotItems.Data(potgiven, with_="points 3", title=None)
+# 	plot2 = Gnuplot.PlotItems.Data(pot, with_="lines", title="fit" )
+# 	g.plot(plot1, plot2)
         #raw_input('Please press enter to continue ...\n')
  
         

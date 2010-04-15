@@ -150,6 +150,12 @@ class Molecule:
                self.Etype = 'cbsqb3'
             elif (tokens[3].upper() == 'G3'):
                self.Etype = 'g3'
+            elif (tokens[3].upper() == 'KLIP_1'):
+               self.Etype = 'klip_1'
+            elif (tokens[3].upper() == 'KLIP_2'):
+               self.Etype = 'klip_2'
+            elif (tokens[3].upper() == 'KLIP_2_CC'):
+               self.Etype = 'klip_2_cc'
             self.Energy = readGeomFc.readEnergy(energyFile, self.Etype)
             print self.Energy, self.Etype
         elif (len(tokens) == 3):
@@ -158,6 +164,12 @@ class Molecule:
                self.Etype = 'cbsqb3'
             elif (tokens[2].upper() == 'G3'):
                self.Etype = 'g3'
+            elif (tokens[2].upper() == 'Klip_1'):
+               self.Etype = 'klip_1'
+            elif (tokens[2].upper() == 'Klip_2'):
+               self.Etype = 'klip_2'
+            elif (tokens[2].upper() == 'KLIP_2_CC'):
+               self.Etype = 'klip_2_cc'
             print self.Etype.upper(),' Energy: ',self.Energy
         else :
             print 'Cannot read the Energy'
@@ -459,7 +471,7 @@ class Molecule:
            oFile.write('Harmonic '+str(k)+'\n')
            oFile.write('Moment of Inertia: '+ str(float(K[k-1]))+'\n')
            oFile.write('Symmetry '+str(self.rotors[k].symm)+'\n')
-           oFile.write('BarrierHeight '+str(harmonic.A)+'\n')
+           oFile.write('BarrierHeight '+str(harmonic.Barrier_Height)+'\n')
            oFile.write('%12s'%'A_i'+'%12s'%'B_i'+'\n')
            for j in range(5):
               oFile.write('%12.3e'%harmonic.Kcos[j]+'%12.3e'%harmonic.Ksin[j]+'\n')
@@ -742,6 +754,11 @@ class Molecule:
          kb = self.kb
          h = self.h
          amu = self.amu
+         # Minimum_Barrier is used to determine when a particular rotor
+         # should be treated as a free rotor.
+         # If the barrier height is less than this value, it is a free rotor.
+         # the default value is 0.5 kcal/mol, which is equal to ~250 Kelvin.
+         Minimum_Barrier = 0.5
 
          oFile.write('\n\nInternal Rotational Contributions\n')
          oFile.write('%12s'%'Temperature')
@@ -762,6 +779,7 @@ class Molecule:
                   ddv = ddv-1*harm.Kcos[l]*(l+1)**2
                 freq = 1.0/2.0/pi*sqrt(ddv*4180.0/K[irot]/1.0e-20/amu/6.023e23)/3.0e10
                 #print '%12.2f'%float(freq),
+         #cfg       print self.Harmonics[irot].Barrier_Height
          #print
 
          #calculate the energy levels for the hindered rotors
@@ -775,16 +793,26 @@ class Molecule:
                vsum = 0.0
                v2sum = 0.0
 
-               for e in E[irot]:
-                 e = e - E[irot][0]
-                 sum = sum + exp(-e*1.0e3/R/T)
-                 vsum = vsum + e*1e3*exp(-e*1.0e3/R/T)
-                 v2sum = v2sum + e**2*1e6*exp(-e*1.0e3/R/T)
+               if self.Harmonics[irot].Barrier_Height > Minimum_Barrier:
 
-               ent[iT] = ent[iT] + R*math.log(sum)+vsum/sum/T-R*log(self.rotors[irot+1].symm)
-               dH[iT] = dH[iT] + vsum/sum/1.0e3
-               cp[iT] = cp[iT] + (v2sum*sum-vsum**2)/sum**2/R/T**2
-               parti[iT] = parti[iT] *sum/self.rotors[irot+1].symm
+                   for e in E[irot]:
+                       e = e - E[irot][0]
+                       sum = sum + exp(-e*1.0e3/R/T)
+                       vsum = vsum + e*1e3*exp(-e*1.0e3/R/T)
+                       v2sum = v2sum + e**2*1e6*exp(-e*1.0e3/R/T)
+
+                       # WHY IS THIS irot+1 ?!?
+                   ent[iT] = ent[iT] + R*math.log(sum)+vsum/sum/T-R*log(self.rotors[irot+1].symm)
+                   dH[iT] = dH[iT] + vsum/sum/1.0e3
+                   cp[iT] = cp[iT] + (v2sum*sum-vsum**2)/sum**2/R/T**2
+                   parti[iT] = parti[iT] *sum
+
+               else:
+
+                   ent[iT] = ent[iT] + R*log( math.sqrt(8*math.pi**3 * K[irot] *kb*T*amu*1e-20) / self.rotors[irot+1].symm / h)  + 0.5*R
+                   dH[iT] = dH[iT] + 0.5*R*T/1.0e3
+                   cp[iT]  = cp[iT] + 0.5 * R
+                   parti[iT] = parti[iT] * math.sqrt(8*math.pi**3 * K[irot] *kb*T*amu*1e-20) / self.rotors[irot+1].symm / h
                
                #print (v2sum*sum-vsum**2)/sum**2/R/T**2,
 

@@ -1,6 +1,7 @@
 \documentclass[a4paper,12pt]{article}
-
+\usepackage{amsmath}
 \usepackage{achemso}
+\newcommand{\keyword}[1]{\texttt{\bfseries{ #1}}} % how to format keywords for the input file
 
 \title{CANTHERM}
 \author{Sandeep Sharma, Michael R. Harper, William H. Green}
@@ -256,67 +257,73 @@ $\alpha_1$ & $\alpha_2$ &2& 3& 4& 5& 6& 8& 10& 12& 16\\
  
 \section{Input File}
 \begin{itemize}
- \item The first line of the file contains the keywords describing the job type to be performed, the two options are \textbf{Thermo} or \textbf{Rate}. As the name suggests the thermo keyword is used to calculate the thermodynamic quantities including entropy, heat capacity and thermal correction for a given molecule. The Rate keyword is used to calculate the rate coefficients for a reaction and also the fitted Arrhenius parameters.
+ \item The first line of the file contains the keywords describing the job type to be performed, the two options are \keyword{Thermo} or \keyword{Rate}. As the name suggests the thermo keyword is used to calculate the thermodynamic quantities including entropy, heat capacity and thermal correction for a given molecule. The Rate keyword is used to calculate the rate coefficients for a reaction and also the fitted Arrhenius parameters.
 	
-If the keyword \textbf{Rate} is used then the next line has to describe whether the reaction is unimolecular or bimolecular by giving keywords \textbf{Unimol} or \textbf{Bimol} respectively. Furthermore, the next line must then describe the type of tunneling correction desired: Wigner, SymmEckart, or ASymmEckart. If the ASymmEckart is selected, the number of products must also be supplied, e.g. AsymmEckart 2.
+If the keyword \keyword{Rate} is used then the next line has to describe whether the reaction is unimolecular or bimolecular by giving keywords \keyword{Unimol} or \keyword{Bimol} respectively. Furthermore, the next line must then describe the type of tunneling correction desired: \keyword{Wigner}, \keyword{SymmEckart}, or \keyword{ASymmEckart}. If ASymmEckart is selected, the number of products must also be supplied, e.g. \keyword{AsymmEckart 2}.
 
-\item The next line gives the range of Temperatures at which the thermochemistry or the rates are to be evaluated. An example input line would be \textbf{Trange 300 100 15}, which tells CANTHERM that the temperatures at which calculations are to be performed are given by $T_i = T_0 + i*dT$, where $T_0=300$, $i$ takes values from 0 to $n=14$ and $dT=100$, all values are in Kelvin.
+\item The next line gives the range of Temperatures at which the thermochemistry or the rates are to be evaluated. An example input line would be \keyword{Trange 300 100 15}, which tells CANTHERM that the temperatures at which calculations are to be performed are given by $T_i = T_0 + i*dT$, where $T_0=300$, $i$ takes values from 0 to $n=14$ and $dT=100$, all values are in Kelvin.
 
-\item The next line instructs Cantherm the scaling factor for all frequencies, e.g. Scale: 0.99
+\item The next line instructs Cantherm the scaling factor for all frequencies, e.g. \keyword{Scale: 0.99}
 
-\item The next line is \textbf{Mol 1} which is followed by information of molecule 1.
-Structure: A molecule can be specified as either NONLINEAR, LINEAR, or
-ATOM. This field is necessary in order to apply the appropriate rotational partition function
+\item The next line is \keyword{Mol 1} which is followed by information of molecule 1.
+Structure: A molecule can be specified as either \keyword{NONLINEAR}, \keyword{LINEAR}, or
+\keyword{ATOM}. This field is necessary in order to apply the appropriate rotational partition function
 
-\item	Geometry: The geometry of the molecule must be specified. One way to do so is to pass the location of the Gaussian output file, e.g. \\\\
-GEOM File Gaussian-geometry.log\\\\
-, to Cantherm. 
+\item	Geometry: The geometry of the molecule must be specified. One way to do so is to pass the location of the Gaussian output file to Cantherm, e.g. \keyword{ GEOM File Gaussian-geometry.log}
 
-The second is to copy and paste the geometry from the .log file. Search for ÒInput orientationÓ in the .log file and copy and paste the geometry information into the input file. An example geometry, for water, is shown below. The number on the line immediately after the GEOM keyword specifies how many atoms are present in the molecule.\\\\
-GEOM \\
-3 \\
-\begin{tabular}{cccccc}
-1	&8	&0 &-0.021483	&0.000000	&-0.015182\\
-2&	1	&0& 0.026269&	0.000000	&0.945620\\
- 3&	1&	0& 0.900149& 0.000000 &-0.290892\\
- \end{tabular}
+The second is to copy and paste the geometry from the .log file. Search for ÒInput orientationÓ in the .log file and copy and paste the geometry information into the input file. An example geometry, for water, is shown below. The number on the line immediately after the \keyword{GEOM} keyword specifies how many atoms are present in the molecule.
+ \begin{verbatim}
+GEOM
+3
+1  8  0  -0.021483   0.000000  -0.015182
+2  1  0   0.026269   0.000000   0.945620
+3  1  0   0.900149   0.000000  -0.290892
+ \end{verbatim}
 
 \item Force constant matrix: The force constant matrix must also be specified. The location of the Gaussian output file that contains the force constant matrix in Cartesian coordinates, e.g. \\\\
-FORCEC File Gaussian-frequency.log \\\\
-of the frequencies in wavenumber (cm$^{-1}$), e.g. the three frequencies for water,\\\\
-FREQ\\
-3\\
-1638.4678	3809.9312 \\
-3906.9015\\\\
+\keyword{FORCEC File Gaussian-frequency.log}\\\\
+of the frequencies in wavenumber (cm$^{-1}$), e.g. the three frequencies for water,
+\begin{verbatim}
+FREQ
+3
+1638.4678	3809.9312 
+3906.9015
+\end{verbatim}
 may be passed to Cantherm.
-If specifying the frequencies, the first line immediately following the FREQ keyword specifies the number of frequencies. Note: When running a frequency job in Gaussian, the keyword iop(7/33=1) must be supplied to ensure the force constant matrix in Cartesian coordinates is stored in the .log file.
+If specifying the frequencies, the first line immediately following the \keyword{FREQ} keyword specifies the number of frequencies. Note: When running a frequency job in Gaussian, the keyword \keyword{iop(7/33=1)} must be supplied to ensure the force constant matrix in Cartesian coordinates is stored in the .log file.
 
-\item Energy: The 0K energy, and the level of theory at which this energy was calculated, must be specified. The 0K energy is read in from a Gaussian output file e.g.\\\\
-ENERGY File Gaussian-geom.log CBS-QB3\\\\
+\item Energy: The 0K energy, and the level of theory at which this energy was calculated, must be specified. The 0K energy is read in from a Gaussian output file e.g.
+\keyword{ENERGY File Gaussian-geom.log CBS-QB3}\\\\
 or specified manually, e.g.\\\\
-ENERGY -76.337491 CBS-QB3\\\\
-
+\keyword{ENERGY -76.337491 CBS-QB3}\\\\
 The only levels of theory currently recognized by Cantherm are CBS-QB3 and G3.
 
-\item External symmetry: The external symmetry of the molecule must be specified, i.e. EXTSYM 2
+\item External symmetry: The external symmetry of the molecule must be specified, i.e. \keyword{EXTSYM 2}
 
-\item Electronic spin multiplicity: The electronic spin multiplicity of the molecule must be specified, i.e. NELEC 1
+\item Electronic spin multiplicity: The electronic spin multiplicity of the molecule must be specified, i.e. \keyword{NELEC 1}
 
-\item Hindered Rotors: The number of hindered rotors must be specified. One way to supply Cantherm with all necessary information is as follows: ROTORS 1 listOfPivotAtoms.txt, in which the .txt file contains the following:
-
-L1: 1 2 3 \\
+\item Hindered Rotors: The number of hindered rotors must be specified. One way to supply Cantherm with all necessary information is as follows: \keyword{ROTORS 1 listOfPivotAtoms.txt}, in which the .txt file contains the following:
+\begin{verbatim}
+L1: 1 2 3
 L2: 3 1 2 3 4 5
+\end{verbatim}
 
 In the example above, the hindered rotor information is contained in the second line. The first number is the symmetry of the hindered rotor potential. The next two numbers correspond to the two pivot atoms, atom1 and atom2. The identity of these atoms can be determined by viewing a molecule in Gaussian, right-clicking, and then selecting ÒLabelsÓ. The remaining numbers, after atom2, correspond to the atom IDs which should be associated with the pivot atom atom2Õs segment of the molecule. These IDs are important when computing the moment of inertia $I^{(2,3)}$.
 
-The next line in the input file deals with the hindered rotor potentials: \textbf{POTENTIAL separable file} hinderedrotor-1.txt; POTENTIAL is a keyword for the input file, \emph{separable} assumes all of the hindered rotors are uncoupled, \emph{file} informs Cantherm to look for the potential in the file named \emph{hinderedrotor-1.txt}. The .txt file can be generated from Gaussian; after opening the results of a SCAN job, select ÒResultsÓ$\rightarrow$ÒScanÓ. In the graph that pops up, right-click and select ÒSave Data...Ó
+The next line in the input file deals with the hindered rotor potentials:\\\\
+\keyword{POTENTIAL separable file hinderedrotor-1.txt}\\\\
+\keyword{POTENTIAL} is a keyword for the input file, \keyword{separable} assumes all of the hindered rotors are uncoupled, \keyword{file} informs Cantherm to look for the potential in the file named \keyword{hinderedrotor-1.txt}. The .txt file can be generated from Gaussian: after opening the results of a SCAN job, select ÒResultsÓ$\rightarrow$ÒScanÓ. In the graph that pops up, right-click and select ÒSave Data...Ó
 
 \item Bond additivity corrections: The number of particular bonds may be specified by the user; the order is: C-H, C-C, C=C, C$\equiv$C, O-H, C-O, and C=O
 
 \end{itemize}
 
 \section{Test Files}
-Two example files are provided in \texttt{Examples}, the first calculates the reaction rate expression for the dehydration reaction: s-Butanol = 1-Butene + H2O, using an asymmetric Eckart tunneling correction. The second calculates the thermochemistry of s-Butanol.
+Two example files are provided in \texttt{Examples}, the first calculates the reaction rate expression for the dehydration reaction: 
+\begin{equation*}
+\textrm{s-Butanol} \rightleftharpoons \textrm{1-Butene} + \mathrm{H_2O}\nonumber
+\end{equation*}
+using an asymmetric Eckart tunneling correction. The second calculates the thermochemistry of s-Butanol.
 These examples are placed in directories \texttt{Examples/ReactionsRate} and \texttt{Examples/Thermochemistry} respectively. To execute these example files go to the relevant directories and execute the command\\\\
 
 \texttt{> ../../CanTherm.py input.dat}\\\\
