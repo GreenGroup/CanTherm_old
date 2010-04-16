@@ -154,7 +154,7 @@ c_p&=& k_b\nonumber \\
 \subsection{Identification of internal rotation modes}
 For small molecules the identification of internal modes of rotation is fairly straightforward. If the normal modes are visualized then usually some of them strongly resemble internal rotations. But for larger molecules the situation becomes  more complicated as the normal modes of vibration have many internal rotational modes along with other modes including bending and stretching modes mixed in. In this case identifying the correct normal mode to remove and treat as a hindered rotor can be difficult. For such cases evaluating the force constant matrix and projecting out the force constants along the internal rotation coordinate can give us a more accurate picture. 
 
-Let us assume that atom 1 and atom 2 are the two pivot atoms for an internal rotor $i$. Also assume that a list of atoms $k$ is attached to pivot atom 1 and a list of atoms $l$ is attached to pivot atom 2. Then the instantaneous displacement vector for an atom $kj$ in list $k$ is given by the vector in Equation~\ref{eq:dis}, where $p_n$ is the position vector of the $n^{th}$ atom.
+Let us assume that atom 1 and atom 2 are the two pivot atoms for an internal rotor $i$. Also assume that a list of atoms $k$ is attached to pivot atom 1 and a list of atoms $l$ is attached to pivot atom 2. Then the instantaneous displacement vector for an atom $k_j$ in list $k$ is given by the vector in Equation~\ref{eq:dis}, where $p_n$ is the position vector of the $n^{th}$ atom.
 \begin{equation}
 s_{kj} = \frac{(p_{kj}-p_1) \times (p_2-p_1)}{\left|p_2-p_1\right|}
 \label{eq:dis}
@@ -167,14 +167,14 @@ Similar displacement vectors can be calculated for each atom and then the $i^{th
 \label{eq:pr}
 \end{equation}
 
-If the complete force constant matrix is $Fc$ then the new force constant matrix $Fcr$ from which the force constants along the internal rotation vectors are removed are given by Equation~\ref{eq:frc} and has $m$ fewer non-zero (or nearly non-zero) eigenvalues than $Fc$, where $m$ is the number of internal rotors.
+If the complete force constant matrix is $F_c$ then the new force constant matrix $F_cr$ from which the force constants along the internal rotation vectors are removed are given by Equation~\ref{eq:frc} and has $m$ fewer non-zero (or nearly non-zero) eigenvalues than $Fc$, where $m$ is the number of internal rotors.
 
 \begin{equation}
- Fcr = (I-P)Fc(I-P)
+ F_cr = (I-P)F_c(I-P)
 \label{eq:frc}
 \end{equation}
 
-This force matrix $Fcr$ can be converted into mass-weighted cartesian coordinates and diagonalized to get the eigenvalues from which the vibrational frequencies can be calculated. 
+This force matrix $F_cr$ can be converted into mass-weighted cartesian coordinates and diagonalized to get the eigenvalues from which the vibrational frequencies can be calculated.
  
  \subsection{Tunneling correction}
  The traditional TST is used to calculate the rate of the reactions. The TST treats nuclei as purely classical particles and thus misses quantum effects, like tunneling. Usually to account for tunneling an ad hoc tunneling correction is added to the final TST rate constant using Wigner or the Eckhart correction as shown in Equation~\ref{eq:tun}, where $\kappa$ is the tunneling correction and $k_{TST}^{corr}$ is the corrected transition state rate constant. 
@@ -308,7 +308,7 @@ L1: 1 2 3
 L2: 3 1 2 3 4 5
 \end{verbatim}
 
-In the example above, the hindered rotor information is contained in the second line. The first number is the symmetry of the hindered rotor potential. The next two numbers correspond to the two pivot atoms, atom1 and atom2. The identity of these atoms can be determined by viewing a molecule in Gaussian, right-clicking, and then selecting “Labels”. The remaining numbers, after atom2, correspond to the atom IDs which should be associated with the pivot atom atom2’s segment of the molecule. These IDs are important when computing the moment of inertia $I^{(2,3)}$.
+In the example above, the first line is a placeholder and should be specified as above for all cases. The hindered rotor information is contained in the second line. The first number is the symmetry of the hindered rotor potential. The next two numbers correspond to the two pivot atoms, atom1 and atom2. The identity of these atoms can be determined by viewing a molecule in Gaussian, right-clicking, and then selecting “Labels”. The remaining numbers, after atom2, correspond to the atom IDs which should be associated with the pivot atom atom2’s segment of the molecule. These IDs are important when computing the moment of inertia $I^{(2,3)}$.
 
 The next line in the input file deals with the hindered rotor potentials:\\\\
 \keyword{POTENTIAL separable file hinderedrotor-1.txt}\\\\
