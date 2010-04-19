@@ -290,7 +290,7 @@ FREQ
 3906.9015
 \end{verbatim}
 may be passed to Cantherm.
-If specifying the frequencies, the first line immediately following the \keyword{FREQ} keyword specifies the number of frequencies. Note: When running a frequency job in Gaussian, the keyword \keyword{iop(7/33=1)} must be supplied to ensure the force constant matrix in Cartesian coordinates is stored in the .log file.
+If specifying the frequencies, the first line immediately following the \keyword{FREQ} keyword specifies the number of frequencies. Note: When running a frequency job in Gaussian, the route section line should begin with #P and the keyword \keyword{iop(7/33=1)} must be supplied to ensure the force constant matrix in Cartesian coordinates is stored in the .log file.
 
 \item Energy: The 0K energy, and the level of theory at which this energy was calculated, must be specified. The 0K energy is read in from a Gaussian output file e.g.
 \keyword{ENERGY File Gaussian-geom.log CBS-QB3}\\\\
