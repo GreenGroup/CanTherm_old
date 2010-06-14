@@ -98,6 +98,11 @@ class Molecule:
            geomFile = open(tokens[2],'r')
            (self.geom,self.Mass) = readGeomFc.readGeom(geomFile); 
 	   #print self.geom
+	elif tokens[1].upper() == 'MM4FILE' :#mm4 option added by gmagoon
+           print "reading MM4 Geometry from the file: ",tokens[2]
+           geomFile = open(tokens[2],'r')
+           (self.geom,self.Mass) = readGeomFc.readMM4Geom(geomFile);
+	   #print self.geom
         else:
            print 'Either give geometry or give keyword File followed by the file containing geometry data'
            exit()
@@ -109,6 +114,14 @@ class Molecule:
 	tokens = line.split()
         if tokens[0].upper() == 'FORCEC' and tokens[1].upper() == 'FILE':
             #MRH added following line on 2/Dec/2009
+            if self.linearity != 'Atom':
+                fcfile = open(tokens[2],'r')
+                self.Fc = readGeomFc.readFc(fcfile)
+
+                for i in range(0,3*self.Mass.size):
+                    for j in range(i,3*self.Mass.size):
+                        self.Fc[i,j] = self.Fc[j,i]
+	if tokens[0].upper() == 'FORCEC' and tokens[1].upper() == 'MM4FILE':#MM4 case
             if self.linearity != 'Atom':
                 fcfile = open(tokens[2],'r')
                 self.Fc = readGeomFc.readFc(fcfile)

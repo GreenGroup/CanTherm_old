@@ -248,6 +248,97 @@ def readGeom(file):
         Mass[j] = getMassByAtomicNumber(int(tokens[1]))
     return geom, Mass
 
+    # Example:
+#	      FINAL ATOMIC COORDINATE
+#           ATOM          X           Y           Z      TYPE
+#         C(    1)    -3.21470    -0.22058     0.00000   (  1)
+#         H(    2)    -3.30991    -0.87175     0.89724   (  5)
+#         H(    3)    -3.30991    -0.87174    -0.89724   (  5)
+#         H(    4)    -4.08456     0.47380     0.00000   (  5)
+#         C(    5)    -1.88672     0.54893     0.00000   (  1)
+#         H(    6)    -1.84759     1.21197    -0.89488   (  5)
+#         H(    7)    -1.84759     1.21197     0.89488   (  5)
+#         C(    8)    -0.66560    -0.38447     0.00000   (  1)
+#         H(    9)    -0.70910    -1.04707    -0.89471   (  5)
+#         H(   10)    -0.70910    -1.04707     0.89471   (  5)
+#         C(   11)     0.66560     0.38447     0.00000   (  1)
+#         H(   12)     0.70910     1.04707     0.89471   (  5)
+#         H(   13)     0.70910     1.04707    -0.89471   (  5)
+#         C(   14)     1.88672    -0.54893     0.00000   (  1)
+#         H(   15)     1.84759    -1.21197    -0.89488   (  5)
+#         H(   16)     1.84759    -1.21197     0.89488   (  5)
+#         C(   17)     3.21470     0.22058     0.00000   (  1)
+#         H(   18)     3.30991     0.87174     0.89724   (  5)
+#         H(   19)     4.08456    -0.47380     0.00000   (  5)
+#         H(   20)     3.30991     0.87175    -0.89724   (  5)
+def readMM4Geom(file):
+    geomList = []
+    MassList = []
+    line = file.readline()
+    while (not line[0:29] == '      FINAL ATOMIC COORDINATE'):#get to the beginning of the geometry section
+	line = file.readline()
+    line = file.readline() #header line (ATOM X Y Z TYPE)
+    line = inputfile.next()
+    while len(line.split()) > 0:
+        MassList.append(getMassByAtomicNumber(line[0:10].strip()))
+	xc = float(line[17:29])
+	yc = float(line[29:41])
+	zc = float(line[41:53])
+	geomList.append([xc,yc,zc])
+	line = inputfile.next()
+    #convert to the matrix format used by CanTherm
+    geom = matrix(geomList)
+    Mass = matrix(MassList)
+
+    return geom, Mass
+
+    # Example FORCE.MAT (water):
+#Current cartesian coordinates              R   N=           9
+#  1.38227456E-08  1.24339856E-01  1.78448645E-15 -1.45071721E+00 -9.86824393E-01
+#  2.86852231E-08  1.45071697E+00 -9.86824393E-01 -2.86852870E-08
+#Cartesian Force Constants                  R   N=          45
+#  6.13473058E-01 -1.28387285E-07  4.70688939E-01 -1.21303083E-08 -1.82546103E-14
+# -2.99988514E-08 -3.06736559E-01 -1.92514360E-01  6.06514705E-09  3.22985142E-01
+# -2.34942228E-01 -2.35344484E-01  4.64554839E-09  2.13728428E-01  2.07648292E-01
+#  6.06512751E-09  3.80659948E-09  5.67157634E-15 -6.38641140E-09 -4.22606394E-09
+#  5.11430362E-15 -3.06736469E-01  1.92514524E-01  6.06514394E-09 -1.62485503E-02
+#  2.12137811E-02  3.21284443E-10  3.22984964E-01  2.34942198E-01 -2.35344678E-01
+# -4.64555550E-09 -2.12138072E-02  2.76963785E-02  4.19465712E-10 -2.13728413E-01
+#  2.07648337E-01 -6.86992934E-08 -7.11914581E-08  2.99988585E-08  1.00143808E-07
+#  7.79862503E-08 -5.05238509E-15 -8.85736817E-09  1.20357928E-08 -2.62903779E-08
+#Atomic Number List                         R   N=           3
+#    8    1    1
+#Internal Coordinate List                   R   N=           0
+#    1    2    0    0    1.0000
+#    1    3    0    0    1.0000
+#    2    1    3    0    1.0000
+def readMM4Fc(file):
+    #size the matrix using the number of coordinates:
+    line = file.readline()
+    threen = int(line.split()[5])
+    Fc = matrix(array(zeros((threen,threen),dtype=float)))
+    #read force constants
+    line = file.readline()
+    while (not line.startswith('Cartesian Force Constants')):#get to the beginning of the force constants section
+	line = file.readline()
+    #n = int(line.split()[5])
+    #read the force constants section
+    atomID1=0#row number - 1
+    atomID2=0#column number - 1
+    line = file.readline()
+    while (not line.startswith('Atomic Number List')):
+	split = line.split()#split line should have 5 elements
+	for i in range(0,5):
+	    Fc[atomID1,atomID2]=float(split[i])
+	    if(atomID2==atomID1):#reset atomID2 and increment atomID1 once we get to the end of the values for the row
+		atomID2 = 0
+		atomID1 = atomID1 + 1
+	    else:#otherwise, increment atomID2 by 1
+		atomID2 = atomID2 + 1
+	line = file.readline()#read the next line
+
+    #now Fc should be lower triangular (+ diagonal)
+    return  Fc
 
 
 def readGeomFc(file):
@@ -450,4 +541,14 @@ def getMassByAtomicNumber(atomicNum) :
     if (atomicNum == 17): Mass=34.96885
     if (atomicNum == 16): Mass=31.97207
     if (atomicNum == 9): Mass=18.99840
+    return Mass
+
+def getMassByAtomicSymbol(atomicSym) :
+    if (atomicSym == 'C'): Mass=12.0
+    if (atomicSym == 'O'): Mass=15.99491
+    if (atomicSym == 'H'): Mass=1.00783
+    if (atomicSym == 'N'): Mass=14.0031
+    if (atomicSym == 'Cl'): Mass=34.96885
+    if (atomicSym == 'S'): Mass=31.97207
+    if (atomicSym == 'F'): Mass=18.99840
     return Mass
