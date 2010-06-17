@@ -140,8 +140,8 @@ class Molecule:
                  i = i+ len(tokens)
                  for j in tokens:
                      self.Freq.append(float(j))
-			 if self.TS :
-			     self.imagFreq = self.Freq.pop(0)
+             if self.TS :
+                 self.imagFreq = self.Freq.pop(0)
  
              if len(self.Freq) > numFreq:
                  print 'More frequencies than ', numFreq, ' are specified'
