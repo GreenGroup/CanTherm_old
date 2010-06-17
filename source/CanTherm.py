@@ -77,6 +77,8 @@ def main():
   Cp = data.Cp
   Thermal = data.Thermal
   Partition = data.Partition
+  Entropy298=0.0
+  Thermal298=0.0
 
   for i in range(len(data.MoleculeList)):
      molecule = data.MoleculeList[i]
@@ -87,6 +89,7 @@ def main():
      oFile.write('\nThermodynamic Data\n')
 
      Temp = data.Temp
+     temp298 = [298.15] #use 298.15 K as well; this will be used below for printing Hf298, S298
      #translation
      (ent,cp,dh,q) = molecule.getTranslationThermo(oFile,data.Temp) 
      for j in range(len(Temp)):
@@ -94,6 +97,9 @@ def main():
          Cp[i*len(Temp)+j]=Cp[i*len(Temp)+j]+cp[j]
          Thermal[i*len(Temp)+j]=Thermal[i*len(Temp)+j]+dh[j]
          Partition[i*len(Temp)+j]=Partition[i*len(Temp)+j]*q[j]
+     (ent298,cp298,dh298,q298) = molecule.getTranslationThermo(oFile,temp298)
+     Entropy298=Entropy298+ent298[0]
+     Thermal298=Thermal298+dh298[0]
   
      #vibrational
      (ent,cp,dh,q) = molecule.getVibrationalThermo(oFile,data.Temp,data.scale) 
@@ -104,6 +110,9 @@ def main():
          Partition[i*len(Temp)+j] = Partition[i*len(Temp)+j]*q[j]
          #print '%12.2f'%float(ent[j]),
      #print '\n'
+     (ent298,cp298,dh298,q298) = molecule.getVibrationalThermo(oFile,temp298,data.scale)
+     Entropy298=Entropy298+ent298[0]
+     Thermal298=Thermal298+dh298[0]
 
      #Internal rotational
      if molecule.numRotors != 0:
@@ -115,6 +124,9 @@ def main():
          Partition[i*len(Temp)+j] = Partition[i*len(Temp)+j]*q[j]
          #print '%12.2f'%float(ent[j]),
      #print '\n'
+     (ent298,cp298,dh298,q298) = molecule.getIntRotationalThermo_Q(oFile,temp298)
+     Entropy298=Entropy298+ent298[0]
+     Thermal298=Thermal298+dh298[0]
 
      #External rotational
      (ent,cp,dh,q) = molecule.getExtRotationalThermo(oFile,data.Temp) 
@@ -123,10 +135,14 @@ def main():
          Cp[i*len(Temp)+j]=Cp[i*len(Temp)+j]+cp[j]
          Thermal[i*len(Temp)+j]=Thermal[i*len(Temp)+j]+dh[j]
          Partition[i*len(Temp)+j] = Partition[i*len(Temp)+j]*q[j]
+     (ent298,cp298,dh298,q298) = molecule.getExtRotationalThermo(oFile,temp298)
+     Entropy298=Entropy298+ent298[0]
+     Thermal298=Thermal298+dh298[0]
 
      for j in range(len(Temp)):
          Entropy[i*len(Temp)+j]=Entropy[i*len(Temp)+j]+1.985*math.log(molecule.nelec)
          Partition[i*len(Temp)+j] = Partition[i*len(Temp)+j] * molecule.nelec
+     Entropy298=Entropy298+1.985*math.log(molecule.nelec)
 
      #print Enthalpy
 
@@ -160,9 +176,10 @@ def main():
      #This E0 will be used in the Eckart tunneling calculation
      molecule.E0 = H
 
+     H298 = H + Thermal298
      H += Thermal[i*len(Temp)+0]
 
-     print '%12.2f'%H + '%12.2f'%Entropy[i*len(Temp)+0]
+     print '%12.2f'%H298 + '%12.2f'%Entropy298,
 #     print '%12.2f'%float(H*4.187) + '%12.2f'%float(Entropy[i*len(Temp)+0]*4.187)
      for c in range(1,len(Temp)):
         print '%12.2f'%Cp[i*len(Temp)+c],
