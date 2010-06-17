@@ -183,6 +183,8 @@ class Molecule:
                self.Etype = 'klip_2'
             elif (tokens[2].upper() == 'KLIP_2_CC'):
                self.Etype = 'klip_2_cc'
+            elif (tokens[2].upper() == 'MM4'):
+               self.Etype = 'mm4'
             print self.Etype.upper(),' Energy: ',self.Energy
         else :
             print 'Cannot read the Energy'

@@ -129,23 +129,25 @@ def main():
          Partition[i*len(Temp)+j] = Partition[i*len(Temp)+j] * molecule.nelec
 
      #print Enthalpy
+
      H = molecule.Energy
-     atoms = readGeomFc.getAtoms(molecule.Mass)
-     atomsH = 0.0
-     if molecule.Etype == 'cbsqb3':
-        atomE = data.atomEcbsqb3
-     if molecule.Etype == 'g3':
-        atomE = data.atomEg3
-     if molecule.Etype == 'klip_1':
-        atomE = data.atomEKlip_1
-     if molecule.Etype == 'klip_2':
-        atomE = data.atomEKlip_2
-     if molecule.Etype == 'klip_2_cc':
-        atomE = data.atomEKlip_2_cc
-     for atom in atoms:
-         H -= atomE[atom]
-         atomsH += data.atomH[atom]
-     H = H*627.5095+atomsH
+     if not molecule.Etype == 'mm4':#for the MM4 case, the value passed in should be in kcal/mol and should not require unit adjustments or atomization energy information
+	 atoms = readGeomFc.getAtoms(molecule.Mass)
+	 atomsH = 0.0
+	 if molecule.Etype == 'cbsqb3':
+	    atomE = data.atomEcbsqb3
+	 if molecule.Etype == 'g3':
+	    atomE = data.atomEg3
+	 if molecule.Etype == 'klip_1':
+	    atomE = data.atomEKlip_1
+	 if molecule.Etype == 'klip_2':
+	    atomE = data.atomEKlip_2
+	 if molecule.Etype == 'klip_2_cc':
+	    atomE = data.atomEKlip_2_cc
+	 for atom in atoms:
+	     H -= atomE[atom]
+	     atomsH += data.atomH[atom]
+	 H = H*627.5095+atomsH
 
      if molecule.Etype == 'cbsqb3':
        b = 0
