@@ -280,7 +280,7 @@ def readMM4Geom(file):
     line = file.readline() #header line (ATOM X Y Z TYPE)
     line = file.readline()
     while len(line.split()) > 0:
-        MassList.append(getMassByAtomicNumber(line[0:10].strip()))
+        MassList.append(getMassByAtomicSymbol(line[0:10].strip()))
 	xc = float(line[17:29])
 	yc = float(line[29:41])
 	zc = float(line[41:53])
