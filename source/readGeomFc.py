@@ -288,7 +288,7 @@ def readMM4Geom(file):
 	line = file.readline()
     #convert to the matrix format used by CanTherm
     geom = matrix(geomList)
-    Mass = matrix(MassList)
+    Mass = matrix(MassList).transpose()
 
     return geom, Mass
 
