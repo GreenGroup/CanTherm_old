@@ -278,14 +278,14 @@ def readMM4Geom(file):
     while (not line[0:29] == '      FINAL ATOMIC COORDINATE'):#get to the beginning of the geometry section
 	line = file.readline()
     line = file.readline() #header line (ATOM X Y Z TYPE)
-    line = inputfile.next()
+    line = file.readline()
     while len(line.split()) > 0:
         MassList.append(getMassByAtomicNumber(line[0:10].strip()))
 	xc = float(line[17:29])
 	yc = float(line[29:41])
 	zc = float(line[41:53])
 	geomList.append([xc,yc,zc])
-	line = inputfile.next()
+	line = file.readline()
     #convert to the matrix format used by CanTherm
     geom = matrix(geomList)
     Mass = matrix(MassList)
