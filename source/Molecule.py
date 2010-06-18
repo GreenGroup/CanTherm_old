@@ -124,7 +124,7 @@ class Molecule:
 	elif tokens[0].upper() == 'FORCEC' and tokens[1].upper() == 'MM4FILE':#MM4 case
             if self.linearity != 'Atom':
                 fcfile = open(tokens[2],'r')
-                self.Fc = readGeomFc.readFc(fcfile)
+                self.Fc = readGeomFc.readMM4Fc(fcfile)
 
                 for i in range(0,3*self.Mass.size):
                     for j in range(i,3*self.Mass.size):
