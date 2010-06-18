@@ -328,7 +328,7 @@ def readMM4Fc(file):
     line = file.readline()
     while (not line.startswith('Atomic Number List')):
 	split = line.split()#split line should have 5 elements
-	for i in range(0,5):
+	for i in range(0,len(split)):
 	    Fc[atomID1,atomID2]=float(split[i])
 	    if(atomID2==atomID1):#reset atomID2 and increment atomID1 once we get to the end of the values for the row
 		atomID2 = 0
