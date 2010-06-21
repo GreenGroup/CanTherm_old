@@ -181,7 +181,7 @@ def main():
 
      print '%12.2f'%H298 + '%12.2f'%Entropy298,
 #     print '%12.2f'%float(H*4.187) + '%12.2f'%float(Entropy[i*len(Temp)+0]*4.187)
-     for c in range(1,len(Temp)):
+     for c in range(0,len(Temp)):
         print '%12.2f'%Cp[i*len(Temp)+c],
      print '\n'
 
