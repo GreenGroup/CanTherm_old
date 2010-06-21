@@ -123,10 +123,10 @@ def main():
          Thermal[i*len(Temp)+j]=Thermal[i*len(Temp)+j]+dh[j]
          Partition[i*len(Temp)+j] = Partition[i*len(Temp)+j]*q[j]
          #print '%12.2f'%float(ent[j]),
-     #print '\n'
-     (ent298,cp298,dh298,q298) = molecule.getIntRotationalThermo_Q(oFile,temp298)
-     Entropy298=Entropy298+ent298[0]
-     Thermal298=Thermal298+dh298[0]
+      #print '\n'
+      (ent298,cp298,dh298,q298) = molecule.getIntRotationalThermo_Q(oFile,temp298)
+      Entropy298=Entropy298+ent298[0]
+      Thermal298=Thermal298+dh298[0]
 
      #External rotational
      (ent,cp,dh,q) = molecule.getExtRotationalThermo(oFile,data.Temp) 
