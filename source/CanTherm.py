@@ -140,9 +140,9 @@ def main():
      Thermal298=Thermal298+dh298[0]
 
      for j in range(len(Temp)):
-         Entropy[i*len(Temp)+j]=Entropy[i*len(Temp)+j]+1.985*math.log(molecule.nelec)
+         Entropy[i*len(Temp)+j]=Entropy[i*len(Temp)+j]+1.9872*math.log(molecule.nelec)
          Partition[i*len(Temp)+j] = Partition[i*len(Temp)+j] * molecule.nelec
-     Entropy298=Entropy298+1.985*math.log(molecule.nelec)
+     Entropy298=Entropy298+1.9872*math.log(molecule.nelec)
 
      #print Enthalpy
 
@@ -203,15 +203,15 @@ def main():
   for j in range(len(Temp)):
 
     if (data.ReacType == 'Unimol'):
-      #rate[j] = (1.381e-23*Temp[j]/6.626e-34)*math.exp((Entropy[len(Temp)+j]-Entropy[j])/1.985)*math.exp(-(data.MoleculeList[1].Energy - data.MoleculeList[0].Energy)*627.5095*1.0e3/1.985/Temp[j])
+      #rate[j] = (1.381e-23*Temp[j]/6.626e-34)*math.exp((Entropy[len(Temp)+j]-Entropy[j])/1.9872)*math.exp(-(data.MoleculeList[1].Energy - data.MoleculeList[0].Energy)*627.5095*1.0e3/1.9872/Temp[j])
       kbT_h = (1.381e-23*Temp[j]/6.626e-34)
       G_TS = Thermal[len(Temp)+j]*1e3+data.MoleculeList[1].Energy*627.5095*1e3-Temp[j]*Entropy[len(Temp)+j]
       G_react = Thermal[j]*1e3+data.MoleculeList[0].Energy*627.5095*1e3-Temp[j]*Entropy[j]
       #qTS_qA = Partition[len(Temp)+j]/Partition[j]
-      #exp_e_RT = math.exp(-(data.MoleculeList[1].Energy-data.MoleculeList[0].Energy)*627.5095*1e3/1.985/Temp[j])
+      #exp_e_RT = math.exp(-(data.MoleculeList[1].Energy-data.MoleculeList[0].Energy)*627.5095*1e3/1.9872/Temp[j])
       #print kbT_h * exp_S_R * exp_H_RT
       #print qTS_qA * exp_e_RT
-      rate[j] = kbT_h * math.exp(-(G_TS-G_react)/1.985/Temp[j])
+      rate[j] = kbT_h * math.exp(-(G_TS-G_react)/1.9872/Temp[j])
 
       #Tunneling:
       #Wigner - need imaginary frequency + temperature
@@ -239,11 +239,11 @@ def main():
           rate[j] *= Eckart.computeTunnelingCorrection(delV1,Temp[j],alpha1,alpha2)
 
     elif (data.ReacType == 'Bimol'):
-      #rate[j] = (1.381e-23*Temp[j]/6.626e-34)*(82.05746*Temp[j]/1.0)*math.exp((Entropy[2*len(Temp)+j]-Entropy[len(Temp)+j]-Entropy[j])/1.985)*math.exp(-(data.MoleculeList[2].Energy - data.MoleculeList[0].Energy - data.MoleculeList[1].Energy)*627.5095*1.0e3/1.985/Temp[j])
+      #rate[j] = (1.381e-23*Temp[j]/6.626e-34)*(82.05746*Temp[j]/1.0)*math.exp((Entropy[2*len(Temp)+j]-Entropy[len(Temp)+j]-Entropy[j])/1.9872)*math.exp(-(data.MoleculeList[2].Energy - data.MoleculeList[0].Energy - data.MoleculeList[1].Energy)*627.5095*1.0e3/1.9872/Temp[j])
       
       kbT_h = (1.381e-23*Temp[j]/6.626e-34)
-      exp_S_R = math.exp((Entropy[2*len(Temp)+j]-Entropy[len(Temp)+j]-Entropy[j])/1.985)
-      exp_H_RT = math.exp(-(Thermal[2*len(Temp)+j]-Thermal[len(Temp)+j]-Thermal[j])*1e3/1.985/Temp[j])
+      exp_S_R = math.exp((Entropy[2*len(Temp)+j]-Entropy[len(Temp)+j]-Entropy[j])/1.9872)
+      exp_H_RT = math.exp(-(Thermal[2*len(Temp)+j]-Thermal[len(Temp)+j]-Thermal[j])*1e3/1.9872/Temp[j])
       rate[j] = kbT_h * exp_S_R * exp_H_RT
 
       #wigner correction
@@ -271,9 +271,9 @@ def main():
           alpha2 = 2*math.pi*delV2/6.022e23/6.626e-34/3.00e10*4184/(-1*data.MoleculeList[2].imagFreq)
           rate[j] *= Eckart.computeTunnelingCorrection(delV1,Temp[j],alpha1,alpha2)
 
-    A[j,:] = mat([1.0, math.log(Temp[j]), -1.0/1.985/Temp[j]])
+    A[j,:] = mat([1.0, math.log(Temp[j]), -1.0/1.9872/Temp[j]])
     y[j] = log(rate[j])
-    A1[j,:] = mat([1.0, -1.0/1.985/Temp[j]])
+    A1[j,:] = mat([1.0, -1.0/1.9872/Temp[j]])
   b = linalg.inv(transpose(A)*A)*(transpose(A)*y)
   b1 = linalg.inv(transpose(A1)*A1)*(transpose(A1)*y)
   oFile.write('\n\nRate Data: Modified Arrhenius format\n')
@@ -281,14 +281,14 @@ def main():
   oFile.write('r = A*T^n*exp(-Ea/R/T)'+'%12.2e'%(exp(b[0]))+'%6.2f'%b[1]+'%12.2f'%(b[2]/1.0e3)+'\n')
   oFile.write('%12s'%'Temperature'+'%12s'%'Rate'+'%12s\n'%'Fit Rate')
   for j in range(len(Temp)):
-      fitrate = exp(b[0])*Temp[j]**float(b[1])*exp(-b[2]/1.985/Temp[j])
+      fitrate = exp(b[0])*Temp[j]**float(b[1])*exp(-b[2]/1.9872/Temp[j])
       oFile.write('%12.2f'%Temp[j]+'%12.2e'%rate[j]+'%12.2e\n'%fitrate)
   oFile.write('\n\n')
   oFile.write('Rate Data: Arrhenius format\n')
   oFile.write('r = A*exp(-Ea/R/T)'+'%12.2e'%(exp(b1[0]))+'%12.2f'%(b1[1]/1.0e3)+'\n')
   oFile.write('%12s'%'Temperature'+'%12s'%'Rate'+'%12s\n'%'Fit Rate')
   for j in range(len(Temp)) :
-      fitrate2 = exp(b1[0])*exp(-b1[1]/1.985/Temp[j])
+      fitrate2 = exp(b1[0])*exp(-b1[1]/1.9872/Temp[j])
       oFile.write('%12.2f'%Temp[j]+'%12.2e'%rate[j]+'%12.2e\n'%fitrate2)
   oFile.write('\n\n')
   oFile.close()

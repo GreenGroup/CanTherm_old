@@ -32,7 +32,7 @@ import Gnuplot
 import os
 
 class Molecule:
-    R = 1.985
+    R = 1.9872
     kb = 1.38065e-23
     h = 6.626e-34
     amu = 1.6605e-27
