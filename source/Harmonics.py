@@ -128,3 +128,117 @@ class Harmonics:
  
         
         return
+
+    #V0 is analogous to pot0 in fitPotential above
+    def fitMM4Potential(self,file,V0,dihedralMinimum):
+	#read the potentials from the file
+	#example block below:
+#Methanol                                                    0   6 0  0 0  0 10.0
+#0   1      0.0000000         4    0         0    0    0    0    0         0    0
+#    1    2
+#    1    3    1    4    1    5    2    6
+#   0.73340   0.03788  -0.00626 C  1(  1)
+#  -0.69331  -0.07708  -0.03183 O  6(  2)
+#   1.18040  -0.92717   0.31879 H  5(  3)
+#   1.04571   0.83498   0.69975 H  5(  4)
+#   1.10634   0.29039  -1.02310 H  5(  5)
+#  -1.06298   0.57455   0.57983 H 21(  6)
+#TORSION(1)=   0.0, TORSION(2)=   0.0, ENERGY=      1.8643 KCAL/MOLE
+#
+#   0.73340   0.03788  -0.00626 C  1(  1)
+#  -0.69331  -0.07708  -0.03183 O  6(  2)
+#   1.18040  -0.92717   0.31879 H  5(  3)
+#   1.04571   0.83498   0.69975 H  5(  4)
+#   1.10634   0.29039  -1.02310 H  5(  5)
+#  -1.06298   0.57455   0.57983 H 21(  6)
+#TORSION(1)=   0.1, TORSION(2)=   0.0, ENERGY=      1.8643 KCAL/MOLE
+#
+#   0.73340   0.03788  -0.00626 C  1(  1)
+#  -0.69331  -0.07708  -0.03183 O  6(  2)
+#   1.18040  -0.92717   0.31879 H  5(  3)
+#   1.04571   0.83498   0.69975 H  5(  4)
+#   1.10634   0.29038  -1.02310 H  5(  5)
+#  -1.06298   0.57455   0.57983 H 21(  6)
+#TORSION(1)=   0.2, TORSION(2)=   0.0, ENERGY=      1.8643 KCAL/MOLE
+
+	read = open(file,'r')
+	nfit = 1
+	potentials = [V0]
+	potgiven = [dihedralMinimum,V0]
+	line = read.readline()
+	while (line != null):
+	    if(line.startswith('TORSTION(1)=')):
+		tokens = line.split()
+		nfit=nfit+1
+		potVal = float(tokens[-2])-V0
+		angleDeg = float(line[11:17])-dihedralMinimum
+		potentials.append(potVal)
+		potgiven.append([angleDeg, potVal])
+	    line = read.readline()
+
+        #now fit the potentials
+#        Y = transpose(matrix(potentials[:nfit]))
+#        X = matrix(zeros((nfit,11),dtype=float))
+# MRH 28Jan2010: comment out previous two lines, added next 2 lines
+  #      Y = matrix(zeros((nfit+1,1),dtype=float))
+  #      X = matrix(zeros((nfit+1,11),dtype=float))
+# END MRH 28Jan2010
+# MRH 2Feb2010: V(phi=0) ~= 0 necessarily
+#     CFG suggests eliminating the A term so MRH is implementing this to test
+        Y = matrix(zeros((nfit+1,1),dtype=float))
+        X = matrix(zeros((nfit+1,10),dtype=float))
+        for i in range(nfit):
+           #MRH 28Jan2010: next line added
+           Y[i,0]=potentials[i]
+           angle = potgiven[i][1]*math.pi/180.0 #note conversion to radians
+           #MRH commented out next line 2Feb2010
+           #X[i,0]=1.0
+           for j in range(5):
+              #MRH commented out next 2 lines 2Feb2010
+              #X[i,j+1] = math.cos((j+1)*angle)
+              #X[i,6+j] = math.sin((j+1)*angle)
+              X[i,j] = math.cos((j+1)*angle)
+              X[i,j+5] = math.sin((j+1)*angle)
+
+        #MRH 28Jan2010: Adding code to enforce dV/dphi = 0 @ phi=0
+        Y[len(Y)-1] = 0
+        for j in range(5):
+           #MRH changed j+6 to j+5 on 2Feb2010
+           X[len(Y)-1,j+5] = j+1
+        #END MRH 28Jan2010
+
+        XtX = transpose(X)*X
+        XtY = transpose(X)*Y
+        b = linalg.inv(XtX)*XtY
+
+        for i in range(5):
+           self.Kcos.append(0.0)
+           #self.Kcos[i] = float(b[i+1])
+           self.Kcos[i] = float(b[i])
+           self.Ksin.append(0.0)
+           #self.Ksin[i] = float(b[i+6])
+           self.Ksin[i] = float(b[i+5])
+        #self.A = float(b[0])
+        self.A = - sum(self.Kcos[:])
+        self.numFit = 5
+        self.Barrier_Height = max(potentials)
+
+        #print self.Kcos
+        #print self.Ksin
+
+        #print "Potential-Read Potential-Fit"
+        #pot = []
+        #for i in range(3*nfit):
+        #   angle = i*360/3/nfit
+        #   pot.append([angle,self.getPotential(angle)])
+        #   print '%14.2f'%potentials[i]+'%14.3f'%pot[i]
+        #print
+#        g=Gnuplot.Gnuplot(persist=1)
+        #g('set data style linespoints')
+#        plot1 = Gnuplot.PlotItems.Data(potgiven, with_="points 3", title=None)
+# 	plot2 = Gnuplot.PlotItems.Data(pot, with_="lines", title="fit" )
+# 	g.plot(plot1, plot2)
+        #raw_input('Please press enter to continue ...\n')
+
+
+        return

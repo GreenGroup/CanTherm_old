@@ -263,6 +263,23 @@ class Molecule:
                    harmonic = Harmonics(5,Kcos,Ksin)
                    harmonic.fitPotential(files)
                    self.Harmonics.append(harmonic)
+            if tokens[2].upper() == 'MM4FILES':
+               line = readGeomFc.readMeaningfulLine(file)
+               tokens = line.split()
+               if len(tokens) != self.numRotors :
+                   print 'give a separate potential file for each rotor'
+               line = readGeomFc.readMeaningfulLine(file)#the next line contains V0 (kcal/mol) followed by the rotor dihedrals (degrees) for the minimum energy conformation
+	       rotinfo = line.split()
+	       V0 = float(rotinfo[0])
+	       i = 0
+	       for files in tokens:
+		   i=i+1
+		   dihedralMinimum = rotinfo[i]
+                   Kcos=[]
+                   Ksin =[]
+                   harmonic = Harmonics(5,Kcos,Ksin)
+                   harmonic.fitMM4Potential(files, V0, dihedralMinimum)
+                   self.Harmonics.append(harmonic)
 
             elif tokens[2].upper() == 'HARMONIC':
                for i in range(self.numRotors):
