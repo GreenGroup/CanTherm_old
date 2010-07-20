@@ -65,8 +65,11 @@ class CanTherm:
 
 def main():
   data = CanTherm()
-  inputFile = open(sys.argv[1],'r') 
-  oFile = open('cantherm.out','w')
+  inputFile = open(sys.argv[1],'r')
+  #determine the output file name by removing the contents of the input filename following the first period and appending the .canout suffix
+  periodPosition = sys.argv[1].rfind(".")
+  outfilename = sys.argv[1][0:periodPosition]+".canout"
+  oFile = open(outfilename,'w')
   readGeomFc.readInputFile(inputFile,data)
 
   data.Entropy=len(data.MoleculeList)*len(data.Temp)*[0.0]
@@ -184,6 +187,13 @@ def main():
      for c in range(0,len(Temp)):
         print '%12.2f'%Cp[i*len(Temp)+c],
      print '\n'
+
+     oFile.write("Hf298 S298 Cps:")
+     oFile.write(H298+" "+ Entropy298)
+#     print '%12.2f'%float(H*4.187) + '%12.2f'%float(Entropy[i*len(Temp)+0]*4.187)
+     for c in range(0,len(Temp)):
+        oFile.write(" "+Cp[i*len(Temp)+c])
+#     print '\n'
 
      #for c in range(len(Temp)):
         #print '%12.2e'%Partition[i*len(Temp)+c],
