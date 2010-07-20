@@ -164,7 +164,7 @@ class Harmonics:
 	read = open(file,'r')
 	nfit = 1
 	potentials = [V0]
-	potgiven = [dihedralMinimum,V0]
+	potgiven = [[dihedralMinimum,V0]]
 	for line in read:
 	    if(line.startswith('TORSTION(1)=')):
 		tokens = line.split()
