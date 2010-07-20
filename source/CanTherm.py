@@ -189,10 +189,10 @@ def main():
      print '\n'
 
      oFile.write("Hf298 S298 Cps:")
-     oFile.write(H298+" "+ Entropy298)
+     oFile.write(str(H298)+" "+ str(Entropy298))
 #     print '%12.2f'%float(H*4.187) + '%12.2f'%float(Entropy[i*len(Temp)+0]*4.187)
      for c in range(0,len(Temp)):
-        oFile.write(" "+Cp[i*len(Temp)+c])
+        oFile.write(" "+str(Cp[i*len(Temp)+c]))
 #     print '\n'
 
      #for c in range(len(Temp)):
