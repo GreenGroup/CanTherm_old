@@ -165,8 +165,7 @@ class Harmonics:
 	nfit = 1
 	potentials = [V0]
 	potgiven = [dihedralMinimum,V0]
-	line = read.readline()
-	while (line != null):
+	for line in read:
 	    if(line.startswith('TORSTION(1)=')):
 		tokens = line.split()
 		nfit=nfit+1
@@ -174,7 +173,6 @@ class Harmonics:
 		angleDeg = float(line[11:17])-dihedralMinimum
 		potentials.append(potVal)
 		potgiven.append([angleDeg, potVal])
-	    line = read.readline()
 
         #now fit the potentials
 #        Y = transpose(matrix(potentials[:nfit]))
