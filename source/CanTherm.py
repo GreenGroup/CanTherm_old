@@ -216,8 +216,13 @@ def main():
               delV2 = data.MoleculeList[1].E0-data.MoleculeList[2].E0
           else :
               delV2 = data.MoleculeList[1].E0-data.MoleculeList[2].E0-data.MoleculeList[3].E0
-          alpha2 = 2*math.pi*delV2/6.022e23/6.626e-34/3.00e10*4184/(-1*data.MoleculeList[1].imagFreq)
-          rate[j] *= Eckart.computeTunnelingCorrection(delV1,Temp[j],alpha1,alpha2)
+          delV2 = delV2 / 6.022e23 * 4184
+          alpha2 = 2*math.pi*delV2/6.626e-34/3.00e10/(-1*data.MoleculeList[2].imagFreq)
+          if (alpha1<alpha2):
+              rate[j] *= Eckart.computeTunnelingCorrection(delV1,Temp[j],alpha1,alpha2)
+          else:
+              # reverse the direction: pass delV2 and alpha1 in place of alpha2
+              rate[j] *= Eckart.computeTunnelingCorrection(delV2,Temp[j],alpha2,alpha1)
 
     elif (data.ReacType == 'Bimol'):
       #rate[j] = (1.381e-23*Temp[j]/6.626e-34)*(82.05746*Temp[j]/1.0)*math.exp((Entropy[2*len(Temp)+j]-Entropy[len(Temp)+j]-Entropy[j])/1.985)*math.exp(-(data.MoleculeList[2].Energy - data.MoleculeList[0].Energy - data.MoleculeList[1].Energy)*627.5095*1.0e3/1.985/Temp[j])
@@ -249,8 +254,13 @@ def main():
               delV2 = data.MoleculeList[2].E0-data.MoleculeList[3].E0
           else :
               delV2 = data.MoleculeList[2].E0-data.MoleculeList[3].E0-data.MoleculeList[4].E0
-          alpha2 = 2*math.pi*delV2/6.022e23/6.626e-34/3.00e10*4184/(-1*data.MoleculeList[2].imagFreq)
-          rate[j] *= Eckart.computeTunnelingCorrection(delV1,Temp[j],alpha1,alpha2)
+          delV2 = delV2 / 6.022e23 * 4184
+          alpha2 = 2*math.pi*delV2/6.626e-34/3.00e10/(-1*data.MoleculeList[2].imagFreq)
+          if (alpha1<alpha2):
+              rate[j] *= Eckart.computeTunnelingCorrection(delV1,Temp[j],alpha1,alpha2)
+          else:
+              # reverse the direction: pass delV2 and alpha1 in place of alpha2
+              rate[j] *= Eckart.computeTunnelingCorrection(delV2,Temp[j],alpha2,alpha1)
 
     A[j,:] = mat([1.0, math.log(Temp[j]), -1.0/1.985/Temp[j]])
     y[j] = log(rate[j])

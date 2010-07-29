@@ -75,6 +75,7 @@ def computeTunnelingCorrection(delV1,T,alpha1,alpha2):
 #       ~35, so MRH used decided on 50 as the upper bound of the integral
     #integral = integrate.quad(f_of_E,0,100,args=(delV1,k*T,alpha1,alpha2))[0]
     #kappa_T = integral * math.exp(delV1/k/T)
+    
     x = array(zeros((10000,1),dtype=float))
     f_x = array(zeros((10000,1),dtype=float))
     for i in range(10000):
@@ -88,7 +89,7 @@ def computeTunnelingCorrection(delV1,T,alpha1,alpha2):
     #print str(minE) + ' ' + str(maxE)
     integral = integrate.quad(f_of_E,minE,maxE,args=(delV1,k*T,alpha1,alpha2))[0]
     kappa_T = integral * math.exp(delV1/k/T)
-    #print kappa_T
+    print kappa_T
     return kappa_T
 
 def f_of_E(E_kt,delV1,kT,alpha1,alpha2):
