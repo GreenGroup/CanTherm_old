@@ -195,7 +195,7 @@ class Molecule:
         if (line.split()[0].upper() != 'EXTSYM'):
            print 'Extsym keyword required'
            exit()
-        self.extSymm = int(line.split()[1])
+        self.extSymm = float(line.split()[1])
 
 #read electronic degeneracy
         line = readGeomFc.readMeaningfulLine(file)
