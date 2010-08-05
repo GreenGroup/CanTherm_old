@@ -46,6 +46,7 @@ class Molecule:
         self.Etype = ''
         self.TS = isTS
         self.E0 = []
+	self.variableInertia = False
 
 #read dummy line "MOL #"
         line = readGeomFc.readMeaningfulLine(file)
@@ -263,7 +264,9 @@ class Molecule:
                    harmonic = Harmonics(5,Kcos,Ksin)
                    harmonic.fitPotential(files)
                    self.Harmonics.append(harmonic)
-            if tokens[2].upper() == 'MM4FILES':
+            if tokens[2].startswith('MM4FILES'):
+               if tokens[2] == 'MM4FILES_INERTIA':#whether to consider variable inertia or not
+		   self.variableInertia=True
                line = readGeomFc.readMeaningfulLine(file)
                tokens = line.split()
                if len(tokens) != self.numRotors :
@@ -271,6 +274,7 @@ class Molecule:
                line = readGeomFc.readMeaningfulLine(file)#the next line contains V0 (kcal/mol) followed by the rotor dihedrals (degrees) for the minimum energy conformation
 	       rotinfo = line.split()
 	       V0 = float(rotinfo[0])
+	       K = geomUtility.calculateD32(self.geom,self.Mass,self.rotors)#get the rotor moments of inertia for the minimum energy conformation, which will be used during the Fourier fit
 	       i = 0
 	       for files in tokens:
 		   i=i+1
@@ -278,7 +282,8 @@ class Molecule:
                    Kcos=[]
                    Ksin =[]
                    harmonic = Harmonics(5,Kcos,Ksin)
-                   harmonic.fitMM4Potential(files, V0, dihedralMinimum)
+		   
+                   harmonic.fitMM4Potential(files, V0, dihedralMinimum,self.variableInertia, rotors[i], K[i-1])
                    self.Harmonics.append(harmonic)
 
             elif tokens[2].upper() == 'HARMONIC':
@@ -882,20 +887,32 @@ class Molecule:
          E=[]
          #let us take k = -500, 500 
          m = 200
+	 ke = 6.023e23*h**2/8.0/math.pi**2/amu/1e-20/4180 #frequently used quantity for the kinetic energy part of the matrix
          #print K
          for irot in range(len(self.Harmonics)):
           H = mat(zeros((2*m+1,2*m+1),dtype=complex))
           kcos = self.Harmonics[irot].Kcos
           ksin = self.Harmonics[irot].Ksin
+	  icos = self.Harmonics[irot].Icos
+	  isin = self.Harmonics[irot].Isin
 
           for k in range(0,2*m+1):
-             H[k,k] = 6.023e23*h**2*(k-m)**2/8.0/math.pi**2/K[irot]/amu/1e-20/4180 + self.Harmonics[irot].A
+             H[k,k] = self.Harmonics[irot].A
+
+	     if self.variableInertia:
+		 H[k,k] += ke*(k-m)(k-m)*self.Harmonics[irot].B
+	     else:
+		 H[k,k] += ke*(k-m)(k-m)/K[irot]
 
              for n in range(1,6):
                 if k-n >= 0:
                   H[k,k-n] = kcos[n-1]/2 + ksin[n-1]/2j
+		  if self.variableInertia:
+		      H[k,k-n]+= (icos[n-1]/2 + isin[n-1]/2j)*ke*(k-m)*(k-n-m)
                 if k+n < 2*m+1:
                   H[k,k+n] = kcos[n-1]/2 - ksin[n-1]/2j
+		  if self.variableInertia:
+		      H[k,k+n] += (icos[n-1]/2 - isin[n-1]/2j)*ke*(k-m)*(k+n-m)
           (l,v) = linalg.eigh(H)
           #pdb.set_trace()
           E.append(l)

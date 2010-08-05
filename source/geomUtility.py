@@ -86,6 +86,12 @@ def calculateD32(geom,Mass,rotors):
     redMom = matrix(zeros((numRotors-1,1),dtype=float))  
     k = 0  
     for rotor in rotors[1:]:
+      redMom[k]=calculateD32forIndividualRotor(geom,Mass,rotor)
+      k += 1
+    return redMom
+
+#***********************************************************************************
+def calculateD32forIndividualRotor(geom,Mass,rotor):
       RotorList = rotor.atomsList
       nonRotorList = []
       for j in range(len(Mass)):
@@ -120,11 +126,8 @@ def calculateD32(geom,Mass,rotors):
          r1 = (geom[j-1,:]-cm2) - ((geom[j-1,:]-cm2)*transpose(axofrot))*axofrot
          I2 += Mass[j-1] * linalg.norm(r1)**2
 
-      redMom[k]=1.0/(1.0/I1+1.0/I2)
-      k += 1
-    return redMom
+      return 1.0/(1.0/I1+1.0/I2)
 
-#***********************************************************************************
 
 def calculateD(geom,Mass,rotors):
     numRotors = len(rotors)

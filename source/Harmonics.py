@@ -23,6 +23,7 @@ from numpy import *
 import pdb
 import readGeomFc
 import math
+import Rotor
 import Gnuplot,Gnuplot.funcutils
 
 class Harmonics:
@@ -31,6 +32,12 @@ class Harmonics:
     Ksin = []
     A = 0.0
     Barrier_Height = 0.0
+
+    #inertia variables for variable moment of inertia case
+    InumFit=0
+    Icos = []
+    Isin = []
+    B = []
 
     def __init__(self,numFit, Kcos, Ksin):
         self.numFit = numFit
@@ -130,7 +137,7 @@ class Harmonics:
         return
 
     #V0 is analogous to pot0 in fitPotential above
-    def fitMM4Potential(self,file,V0,dihedralMinimum):
+    def fitMM4Potential(self,file,V0,dihedralMinimum, variableInertia, rotor, Ki):
 	#read the potentials from the file
 	#example block below:
 #Methanol                                                    0   6 0  0 0  0 10.0
@@ -163,16 +170,36 @@ class Harmonics:
 
 	read = open(file,'r')
 	nfit = 1
-	potentials = [V0]
-	potgiven = [[dihedralMinimum,V0]]
+	potentials = [0.0]
+	potgiven = [[0.0,0.0]]#initialize with value at mimimum (reset to angle of zero)
+	inertgiven = [[0.0,1/Ki]]#variable to store 1/reduced moment of inertia; initialize with value at mimimum (reset to angle of zero)
+	geomList = []
+	MassList = []
 	for line in read:
-	    if(line.startswith('TORSION(1)=')):
+	    if line[39:40]==")":#look for geometry lines; cf. readGeomFc.readMM4Geom()
+		MassList.append(readGeomFc.getMassByAtomicSymbol(line[30:33].strip()))
+		xc = float(line[0:10])
+		yc = float(line[10:20])
+		zc = float(line[20:30])
+		geomList.append([xc,yc,zc])
+	    if(line.startswith('TORSION(1)=')):#torsional energy line terminates the geometry section
+		#1: read in the torsion information
 		tokens = line.split()
 		nfit=nfit+1
 		potVal = float(tokens[-2])-V0
 		angleDeg = float(line[11:17])-dihedralMinimum
 		potentials.append(potVal)
 		potgiven.append([angleDeg, potVal])
+		#2: process the geometry information (i.e. calculate inertia) and store the result (in variableInertia cases)
+		if variableInertia:
+		    #convert to the matrix format used by CanTherm
+		    geom = matrix(geomList)
+		    Mass = matrix(MassList).transpose()
+		    inertVal = geomUtility.calculateD32forIndividualRotor(geom,Mass,rotor)
+		    inertgiven.append([angleDeg, 1/inertVal])
+		#3: reset geomList and MassList for reading the next geometry
+		geomList = []
+		MassList = []
 
         #now fit the potentials
 #        Y = transpose(matrix(potentials[:nfit]))
@@ -237,6 +264,32 @@ class Harmonics:
 # 	plot2 = Gnuplot.PlotItems.Data(pot, with_="lines", title="fit" )
 # 	g.plot(plot1, plot2)
         #raw_input('Please press enter to continue ...\n')
+
+	#fit 1/moment of inertia; unlike above, we don't need (or want) to enforce d/d(phi) = 0 at phi = 0
+	if variableInertia:
+	    Y = matrix(zeros((nfit,1),dtype=float))
+	    X = matrix(zeros((nfit,11),dtype=float))
+	    for i in range(nfit):
+	       Y[i,0]=inertgiven[i][0]
+	       angle = inertgiven[i][1]*math.pi/180.0 #note conversion to radians
+	       for j in range(5):
+		  X[i,j] = math.cos((j+1)*angle)
+		  X[i,j+5] = math.sin((j+1)*angle)
+	       X[i,10] = 1 #contribution from the constant term (in this sense, it differs from approach with potential, above)
+
+
+	    XtX = transpose(X)*X
+	    XtY = transpose(X)*Y
+	    b = linalg.inv(XtX)*XtY
+
+	    for i in range(5):
+	       self.Icos.append(0.0)
+	       self.Icos[i] = float(b[i])
+	       self.Isin.append(0.0)
+	       self.Isin[i] = float(b[i+5])
+	    #self.B = 1/Ki - sum(self.Icos[:])#ensure it passes through 1/Ki at phi=0; note that this approach (as in the similar assignment of self.A in the method above) does not necessarily ensure that we have the least squares error given this constraint; if the fit is good, the sum of cosines should already be close to 1/Ki and this value should be close to zero
+	    self.B = b[10] #unlike above, we will not try to make sure the fit passes through the value at phi=0; instead, we use the constant term as one of the fitted parameters
+	    self.InumFit = 5
 
 
         return
