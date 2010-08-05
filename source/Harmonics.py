@@ -166,7 +166,7 @@ class Harmonics:
 	potentials = [V0]
 	potgiven = [[dihedralMinimum,V0]]
 	for line in read:
-	    if(line.startswith('TORSTION(1)=')):
+	    if(line.startswith('TORSION(1)=')):
 		tokens = line.split()
 		nfit=nfit+1
 		potVal = float(tokens[-2])-V0
