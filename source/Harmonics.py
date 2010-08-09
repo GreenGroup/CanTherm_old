@@ -178,7 +178,7 @@ class Harmonics:
 	MassList = []
 	for line in read:
 	    if line[39:40]==")":#look for geometry lines; cf. readGeomFc.readMM4Geom()
-		MassList.append(readGeomFc.getMassByAtomicSymbol(line[30:33].strip()))
+		MassList.append(readGeomFc.getMassByAtomicSymbol(line[30:32].strip()))
 		xc = float(line[0:10])
 		yc = float(line[10:20])
 		zc = float(line[20:30])
