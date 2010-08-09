@@ -173,6 +173,7 @@ class Harmonics:
 	nfit = 1
 	potentials = [0.0]
 	potgiven = [[0.0,0.0]]#initialize with value at mimimum (reset to angle of zero)
+	inertgiven = [[0.0,1/Ki]]#variable to store 1/reduced moment of inertia; initialize with value at mimimum (reset to angle of zero)
 	geomList = []
 	MassList = []
 	for line in read:
