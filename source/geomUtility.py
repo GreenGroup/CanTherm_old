@@ -104,13 +104,13 @@ def calculateD32forIndividualRotor(geom,Mass,rotor):
       cm2 = mat('0.0 0.0 0.0')
       mass2 = 0.0
       for j in RotorList:
-         cm1 = cm1 + Mass[j-1]*geom[j-1,:]
-         mass1 += Mass[j-1]
+         cm1 = cm1 + float(Mass[j-1])*geom[j-1,:]
+         mass1 += float(Mass[j-1])
       cm1 = cm1/mass1
 
       for j in nonRotorList:
-         cm2 = cm2 + Mass[j-1]*geom[j-1,:]
-         mass2 += Mass[j-1]
+         cm2 = cm2 + float(Mass[j-1])*geom[j-1,:]
+         mass2 += float(Mass[j-1])
       cm2 = cm2/mass2
 
       axofrot = (cm1-cm2)/linalg.norm(cm1-cm2) #axis of rotation
@@ -120,11 +120,11 @@ def calculateD32forIndividualRotor(geom,Mass,rotor):
 
       for j in RotorList:
          r1 = (geom[j-1,:]-cm1) - ((geom[j-1,:]-cm1)*transpose(axofrot))*axofrot
-         I1 += Mass[j-1] * linalg.norm(r1)**2
+         I1 += float(Mass[j-1]) * linalg.norm(r1)**2
 
       for j in nonRotorList:
          r1 = (geom[j-1,:]-cm2) - ((geom[j-1,:]-cm2)*transpose(axofrot))*axofrot
-         I2 += Mass[j-1] * linalg.norm(r1)**2
+         I2 += float(Mass[j-1]) * linalg.norm(r1)**2
 
       return 1.0/(1.0/I1+1.0/I2)
 

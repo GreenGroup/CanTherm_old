@@ -24,6 +24,7 @@ import pdb
 import readGeomFc
 import math
 import Rotor
+import geomUtility
 import Gnuplot,Gnuplot.funcutils
 
 class Harmonics:
@@ -37,7 +38,7 @@ class Harmonics:
     InumFit=0
     Icos = []
     Isin = []
-    B = []
+    B = 0.0
 
     def __init__(self,numFit, Kcos, Ksin):
         self.numFit = numFit
@@ -172,7 +173,6 @@ class Harmonics:
 	nfit = 1
 	potentials = [0.0]
 	potgiven = [[0.0,0.0]]#initialize with value at mimimum (reset to angle of zero)
-	inertgiven = [[0.0,1/Ki]]#variable to store 1/reduced moment of inertia; initialize with value at mimimum (reset to angle of zero)
 	geomList = []
 	MassList = []
 	for line in read:
@@ -215,7 +215,7 @@ class Harmonics:
         for i in range(nfit):
            #MRH 28Jan2010: next line added
            Y[i,0]=potentials[i]
-           angle = potgiven[i][1]*math.pi/180.0 #note conversion to radians
+           angle = potgiven[i][0]*math.pi/180.0 #note conversion to radians
            #MRH commented out next line 2Feb2010
            #X[i,0]=1.0
            for j in range(5):
@@ -270,12 +270,12 @@ class Harmonics:
 	    Y = matrix(zeros((nfit,1),dtype=float))
 	    X = matrix(zeros((nfit,11),dtype=float))
 	    for i in range(nfit):
-	       Y[i,0]=inertgiven[i][0]
-	       angle = inertgiven[i][1]*math.pi/180.0 #note conversion to radians
+	       Y[i,0]=inertgiven[i][1]
+	       angle = inertgiven[i][0]*math.pi/180.0 #note conversion to radians
 	       for j in range(5):
 		  X[i,j] = math.cos((j+1)*angle)
 		  X[i,j+5] = math.sin((j+1)*angle)
-	       X[i,10] = 1 #contribution from the constant term (in this sense, it differs from approach with potential, above)
+	       X[i,10] = 1.0 #contribution from the constant term (in this sense, it differs from approach with potential, above)
 
 
 	    XtX = transpose(X)*X
@@ -288,7 +288,7 @@ class Harmonics:
 	       self.Isin.append(0.0)
 	       self.Isin[i] = float(b[i+5])
 	    #self.B = 1/Ki - sum(self.Icos[:])#ensure it passes through 1/Ki at phi=0; note that this approach (as in the similar assignment of self.A in the method above) does not necessarily ensure that we have the least squares error given this constraint; if the fit is good, the sum of cosines should already be close to 1/Ki and this value should be close to zero
-	    self.B = b[10] #unlike above, we will not try to make sure the fit passes through the value at phi=0; instead, we use the constant term as one of the fitted parameters
+	    self.B = float(b[10]) #unlike above, we will not try to make sure the fit passes through the value at phi=0; instead, we use the constant term as one of the fitted parameters
 	    self.InumFit = 5
 
 

@@ -27,7 +27,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os 
 from numpy import *
-from Rotor import *
+import Rotor
 import pdb
 import CanTherm
 from Molecule import *
@@ -213,7 +213,7 @@ def readGeneralInertia(file,Mass):
         atomsList=[]
         for atoms in tokens[3:]:
             atomsList.append(int(atoms))
-        rotor = Rotor(atomsList,pivot2,level,symm,Mass)
+        rotor = Rotor.Rotor(atomsList,pivot2,level,symm,Mass)
         rotor.parent = parentLevel
         #print rotor.symm, rotor.pivot2, rotor.pivotAtom, rotor.atomsList
         rotors.append(rotor) 

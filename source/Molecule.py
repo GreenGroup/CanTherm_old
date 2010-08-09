@@ -278,12 +278,12 @@ class Molecule:
 	       i = 0
 	       for files in tokens:
 		   i=i+1
-		   dihedralMinimum = rotinfo[i]
+		   dihedralMinimum = float(rotinfo[i])
                    Kcos=[]
                    Ksin =[]
                    harmonic = Harmonics(5,Kcos,Ksin)
 		   
-                   harmonic.fitMM4Potential(files, V0, dihedralMinimum,self.variableInertia, rotors[i], K[i-1])
+                   harmonic.fitMM4Potential(files, V0, dihedralMinimum,self.variableInertia, self.rotors[i], float(K[i-1]))
                    self.Harmonics.append(harmonic)
 
             elif tokens[2].upper() == 'HARMONIC':
@@ -900,9 +900,9 @@ class Molecule:
              H[k,k] = self.Harmonics[irot].A
 
 	     if self.variableInertia:
-		 H[k,k] += ke*(k-m)(k-m)*self.Harmonics[irot].B
+		 H[k,k] += ke*(k-m)*(k-m)*self.Harmonics[irot].B
 	     else:
-		 H[k,k] += ke*(k-m)(k-m)/K[irot]
+		 H[k,k] += ke*(k-m)*(k-m)/float(K[irot])
 
              for n in range(1,6):
                 if k-n >= 0:
