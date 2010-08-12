@@ -176,8 +176,9 @@ class Harmonics:
 	inertgiven = [[0.0,1/Ki]]#variable to store 1/reduced moment of inertia; initialize with value at mimimum (reset to angle of zero)
 	geomList = []
 	MassList = []
+	firstLineRead = False
 	for line in read:
-	    if line[39:40]==")":#look for geometry lines; cf. readGeomFc.readMM4Geom()
+	    if line[39:40]==")" and firstLineRead:#look for geometry lines; cf. readGeomFc.readMM4Geom(); note that firstLineRead makes us skip any possible parentheses (e.g. in InChI strings) that may appear in the molecule name at this position
 		MassList.append(readGeomFc.getMassByAtomicSymbol(line[30:32].strip()))
 		xc = float(line[0:10])
 		yc = float(line[10:20])
@@ -201,6 +202,7 @@ class Harmonics:
 		#3: reset geomList and MassList for reading the next geometry
 		geomList = []
 		MassList = []
+	    firstLineRead=True
 
         #now fit the potentials
 #        Y = transpose(matrix(potentials[:nfit]))
