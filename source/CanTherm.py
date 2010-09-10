@@ -162,9 +162,9 @@ def main():
 
      print '%12.2f'%H + '%12.2f'%Entropy[i*len(Temp)+0]
      print '%12.2f'%float(H*4.187) + '%12.2f'%float(Entropy[i*len(Temp)+0]*4.187)
-#     for c in range(1,len(Temp)):
-#        print '%12.2f'%Cp[i*len(Temp)+c],
-#     print '\n'
+     for c in range(1,len(Temp)):
+        print '%12.2f'%Cp[i*len(Temp)+c],
+     print '\n'
 
      #for c in range(len(Temp)):
         #print '%12.2e'%Partition[i*len(Temp)+c],
@@ -227,10 +227,11 @@ def main():
     elif (data.ReacType == 'Bimol'):
       #rate[j] = (1.381e-23*Temp[j]/6.626e-34)*(82.05746*Temp[j]/1.0)*math.exp((Entropy[2*len(Temp)+j]-Entropy[len(Temp)+j]-Entropy[j])/1.985)*math.exp(-(data.MoleculeList[2].Energy - data.MoleculeList[0].Energy - data.MoleculeList[1].Energy)*627.5095*1.0e3/1.985/Temp[j])
       
-      kbT_h = (1.381e-23*Temp[j]/6.626e-34)
-      exp_S_R = math.exp((Entropy[2*len(Temp)+j]-Entropy[len(Temp)+j]-Entropy[j])/1.985)
-      exp_H_RT = math.exp(-(Thermal[2*len(Temp)+j]-Thermal[len(Temp)+j]-Thermal[j])*1e3/1.985/Temp[j])
-      rate[j] = kbT_h * exp_S_R * exp_H_RT
+      kbT_hC = (1.381e-23*Temp[j]/6.626e-34)*(82.05746*Temp[j]/1.0)
+      G_TS = Thermal[2*len(Temp)+j]*1e3+data.MoleculeList[2].Energy*627.5095*1e3-Temp[j]*Entropy[2*len(Temp)+j]
+      G_react1 = Thermal[len(Temp)+j]*1e3+data.MoleculeList[1].Energy*627.5095*1e3-Temp[j]*Entropy[len(Temp)+j]
+      G_react2 = Thermal[j]*1e3+data.MoleculeList[0].Energy*627.5095*1e3-Temp[j]*Entropy[j]
+      rate[j] = kbT_hC * math.exp(-(G_TS-G_react1-G_react2)/1.985/Temp[j])
 
       #wigner correction
       #rate[j] *= 1.0 + 1.0/24.0 * (1.44*data.MoleculeList[2].imagFreq/Temp[j])**2
