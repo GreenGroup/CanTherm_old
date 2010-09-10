@@ -217,7 +217,7 @@ def main():
           else :
               delV2 = data.MoleculeList[1].E0-data.MoleculeList[2].E0-data.MoleculeList[3].E0
           delV2 = delV2 / 6.022e23 * 4184
-          alpha2 = 2*math.pi*delV2/6.626e-34/3.00e10/(-1*data.MoleculeList[2].imagFreq)
+          alpha2 = 2*math.pi*delV2/6.626e-34/3.00e10/(-1*data.MoleculeList[1].imagFreq)
           if (alpha1<alpha2):
               rate[j] *= Eckart.computeTunnelingCorrection(delV1,Temp[j],alpha1,alpha2)
           else:
