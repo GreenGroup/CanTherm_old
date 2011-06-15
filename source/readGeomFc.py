@@ -471,7 +471,7 @@ def printNormalModes(l,v,num,Mass):
 
 def readEnergy(file, string):
    com = file.read()
-   if string == 'cbsqb3' or string == 'cbsqb3uf' :
+   if (string == 'cbsqb3' or string == 'cbsqb3uf') :
      Energy=re.search('CBS-QB3 \(0 K\)= '+' \s*([\-0-9.]+)',com).group(1)
    if string == 'g3':
      Energy=re.search('G3\(0 K\)= '+' \s*([\-0-9.]+)',com).group(1)

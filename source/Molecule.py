@@ -162,9 +162,9 @@ class Molecule:
             energyFile = open(tokens[2],'r')
             if (tokens[3].upper() == 'CBS-QB3'):
                self.Etype = 'cbsqb3'
-	    elif (tokens[3].upper() == 'CBS-QB3_ultrafine'):
+            elif (tokens[3].upper() == 'CBS-QB3_ultrafine'):
                self.Etype = 'cbsqb3uf'
-	       print 'Warning: "Regular" (non-ultrafine) CBS-QB3 values will be used for P, N as a first approximation'
+               print 'Warning: "Regular" (non-ultrafine) CBS-QB3 values will be used for P, N as a first approximation'
             elif (tokens[3].upper() == 'G3'):
                self.Etype = 'g3'
             elif (tokens[3].upper() == 'KLIP_1'):
@@ -179,9 +179,9 @@ class Molecule:
             self.Energy = float(tokens[1])
             if (tokens[2].upper() == 'CBS-QB3'):
                self.Etype = 'cbsqb3'
-	    elif (tokens[2].upper() == 'CBS-QB3_ultrafine'):
+            elif (tokens[2].upper() == 'CBS-QB3_ultrafine'):
                self.Etype = 'cbsqb3uf'
-	       print 'Warning: "Regular" (non-ultrafine) CBS-QB3 values will be used for P, N as a first approximation'
+               print 'Warning: "Regular" (non-ultrafine) CBS-QB3 values will be used for P, N as a first approximation'
             elif (tokens[2].upper() == 'G3'):
                self.Etype = 'g3'
             elif (tokens[2].upper() == 'Klip_1'):

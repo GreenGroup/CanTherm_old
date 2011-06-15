@@ -172,7 +172,7 @@ def main():
 	     atomsH += data.atomH[atom]
 	 H = H*627.5095+atomsH
 
-     if molecule.Etype == 'cbsqb3' or molecule.Etype == 'cbsqb3uf' :
+     if (molecule.Etype == 'cbsqb3' or molecule.Etype == 'cbsqb3uf') :
        b = 0
        for bonds in molecule.bonds:
          H += bonds*data.bondC[b]
