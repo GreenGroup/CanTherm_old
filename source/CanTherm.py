@@ -45,6 +45,8 @@ class CanTherm:
  scale = 0.0
  #CBSQB3 E for H, N, O, C, P
  atomEcbsqb3 = {'H':-0.499818 , 'N':-54.520543 , 'O':-74.987624 , 'C':-37.785385 , 'P':-340.817186}
+  #CBSQB3ultrafine E for H, N, O, C, P (P, N values taken from "regular" CBS-QB3 value as a first approximation; H unchanged, I believe)
+ atomEcbsqb3 = {'H':-0.499818 , 'N':-54.520543 , 'O':-74.987619 , 'C':-37.785376 , 'P':-340.817186}
  #G3 E for H, N, O, C, P
  atomEg3 = {'H':-0.5010030, 'N':-54.564343, 'O':-75.030991, 'C':-37.827717, 'P':-341.116432}
  #Klip QCI(dz,tz)+ MP2(tz,qz) E for H, N, O, C, P
@@ -155,6 +157,8 @@ def main():
 	 atomsH = 0.0
 	 if molecule.Etype == 'cbsqb3':
 	    atomE = data.atomEcbsqb3
+	 if molecule.Etype == 'cbsqb3uf':
+	    atomE = data.atomEcbsqb3uf
 	 if molecule.Etype == 'g3':
 	    atomE = data.atomEg3
 	 if molecule.Etype == 'klip_1':
@@ -168,7 +172,7 @@ def main():
 	     atomsH += data.atomH[atom]
 	 H = H*627.5095+atomsH
 
-     if molecule.Etype == 'cbsqb3':
+     if molecule.Etype == 'cbsqb3' or molecule.Etype == 'cbsqb3uf' :
        b = 0
        for bonds in molecule.bonds:
          H += bonds*data.bondC[b]
