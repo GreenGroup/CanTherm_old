@@ -46,7 +46,7 @@ class CanTherm:
  #CBSQB3 E for H, N, O, C, P
  atomEcbsqb3 = {'H':-0.499818 , 'N':-54.520543 , 'O':-74.987624 , 'C':-37.785385 , 'P':-340.817186}
   #CBSQB3ultrafine E for H, N, O, C, P (P, N values taken from "regular" CBS-QB3 value as a first approximation; H unchanged, I believe)
- atomEcbsqb3 = {'H':-0.499818 , 'N':-54.520543 , 'O':-74.987619 , 'C':-37.785376 , 'P':-340.817186}
+ atomEcbsqb3uf = {'H':-0.499818 , 'N':-54.520543 , 'O':-74.987619 , 'C':-37.785376 , 'P':-340.817186}
  #G3 E for H, N, O, C, P
  atomEg3 = {'H':-0.5010030, 'N':-54.564343, 'O':-75.030991, 'C':-37.827717, 'P':-341.116432}
  #Klip QCI(dz,tz)+ MP2(tz,qz) E for H, N, O, C, P
