@@ -270,7 +270,7 @@ class Molecule:
                    harmonic = Harmonics(5,Kcos,Ksin)
                    harmonic.fitPotential(files)
                    self.Harmonics.append(harmonic)
-            if tokens[2].upper().startswith('MM4FILES'):
+            elif tokens[2].upper().startswith('MM4FILES'):
                if tokens[2].upper() == 'MM4FILES_INERTIA':#whether to consider variable inertia or not
 		   self.variableInertia=True
                line = readGeomFc.readMeaningfulLine(file)
