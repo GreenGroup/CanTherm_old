@@ -264,7 +264,7 @@ def main():
       G_TS = Thermal[2*len(Temp)+j]*1e3+data.MoleculeList[2].Energy*627.5095*1e3-Temp[j]*Entropy[2*len(Temp)+j]
       G_react1 = Thermal[len(Temp)+j]*1e3+data.MoleculeList[1].Energy*627.5095*1e3-Temp[j]*Entropy[len(Temp)+j]
       G_react2 = Thermal[j]*1e3+data.MoleculeList[0].Energy*627.5095*1e3-Temp[j]*Entropy[j]
-      rate[j] = kbT_hC * math.exp(-(G_TS-G_react1-G_react2)/1.985/Temp[j])
+      rate[j] = kbT_hC * math.exp(-(G_TS-G_react1-G_react2)/1.9872/Temp[j])
 
       #wigner correction
       #rate[j] *= 1.0 + 1.0/24.0 * (1.44*data.MoleculeList[2].imagFreq/Temp[j])**2
