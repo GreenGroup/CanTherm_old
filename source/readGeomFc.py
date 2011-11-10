@@ -398,7 +398,7 @@ def readGeomFc(file):
               k = k+1
           i= i+1
        j = j+1
-
+    
     return geom, Mass, Fc
 
 def readFc(file):
@@ -452,7 +452,7 @@ def readFc(file):
               k = k+1
           i= i+1
        j = j+1
-
+    
     return  Fc
 
 def printNormalModes(l,v,num,Mass):

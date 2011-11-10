@@ -249,16 +249,22 @@ def main():
               delV2 = data.MoleculeList[1].E0-data.MoleculeList[2].E0
           else :
               delV2 = data.MoleculeList[1].E0-data.MoleculeList[2].E0-data.MoleculeList[3].E0
-          alpha2 = 2*math.pi*delV2/6.022e23/6.626e-34/3.00e10*4184/(-1*data.MoleculeList[1].imagFreq)
-          rate[j] *= Eckart.computeTunnelingCorrection(delV1,Temp[j],alpha1,alpha2)
+          delV2 = delV2 / 6.022e23 * 4184
+          alpha2 = 2*math.pi*delV2/6.626e-34/3.00e10/(-1*data.MoleculeList[1].imagFreq)
+          if (alpha1<alpha2):
+              rate[j] *= Eckart.computeTunnelingCorrection(delV1,Temp[j],alpha1,alpha2)
+          else:
+              # reverse the direction: pass delV2 and alpha1 in place of alpha2
+              rate[j] *= Eckart.computeTunnelingCorrection(delV2,Temp[j],alpha2,alpha1)
 
     elif (data.ReacType == 'Bimol'):
       #rate[j] = (1.381e-23*Temp[j]/6.626e-34)*(82.05746*Temp[j]/1.0)*math.exp((Entropy[2*len(Temp)+j]-Entropy[len(Temp)+j]-Entropy[j])/1.9872)*math.exp(-(data.MoleculeList[2].Energy - data.MoleculeList[0].Energy - data.MoleculeList[1].Energy)*627.5095*1.0e3/1.9872/Temp[j])
       
-      kbT_h = (1.381e-23*Temp[j]/6.626e-34)
-      exp_S_R = math.exp((Entropy[2*len(Temp)+j]-Entropy[len(Temp)+j]-Entropy[j])/1.9872)
-      exp_H_RT = math.exp(-(Thermal[2*len(Temp)+j]-Thermal[len(Temp)+j]-Thermal[j])*1e3/1.9872/Temp[j])
-      rate[j] = kbT_h * exp_S_R * exp_H_RT
+      kbT_hC = (1.381e-23*Temp[j]/6.626e-34)*(82.05746*Temp[j]/1.0)
+      G_TS = Thermal[2*len(Temp)+j]*1e3+data.MoleculeList[2].Energy*627.5095*1e3-Temp[j]*Entropy[2*len(Temp)+j]
+      G_react1 = Thermal[len(Temp)+j]*1e3+data.MoleculeList[1].Energy*627.5095*1e3-Temp[j]*Entropy[len(Temp)+j]
+      G_react2 = Thermal[j]*1e3+data.MoleculeList[0].Energy*627.5095*1e3-Temp[j]*Entropy[j]
+      rate[j] = kbT_hC * math.exp(-(G_TS-G_react1-G_react2)/1.985/Temp[j])
 
       #wigner correction
       #rate[j] *= 1.0 + 1.0/24.0 * (1.44*data.MoleculeList[2].imagFreq/Temp[j])**2
@@ -282,8 +288,13 @@ def main():
               delV2 = data.MoleculeList[2].E0-data.MoleculeList[3].E0
           else :
               delV2 = data.MoleculeList[2].E0-data.MoleculeList[3].E0-data.MoleculeList[4].E0
-          alpha2 = 2*math.pi*delV2/6.022e23/6.626e-34/3.00e10*4184/(-1*data.MoleculeList[2].imagFreq)
-          rate[j] *= Eckart.computeTunnelingCorrection(delV1,Temp[j],alpha1,alpha2)
+          delV2 = delV2 / 6.022e23 * 4184
+          alpha2 = 2*math.pi*delV2/6.626e-34/3.00e10/(-1*data.MoleculeList[2].imagFreq)
+          if (alpha1<alpha2):
+              rate[j] *= Eckart.computeTunnelingCorrection(delV1,Temp[j],alpha1,alpha2)
+          else:
+              # reverse the direction: pass delV2 and alpha1 in place of alpha2
+              rate[j] *= Eckart.computeTunnelingCorrection(delV2,Temp[j],alpha2,alpha1)
 
     A[j,:] = mat([1.0, math.log(Temp[j]), -1.0/1.9872/Temp[j]])
     y[j] = log(rate[j])
