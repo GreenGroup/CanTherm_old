@@ -46,6 +46,7 @@ class CanTherm:
 
  #units below are Hartree
  SOC = {'H':0.0, 'N':0.0, 'O': -0.000355, 'C': -0.000135, 'P': 0.0} #spin orbit correction (SOC) in Hartrees, values taken from note 22 of http://jcp.aip.org/resource/1/jcpsa6/v109/i24/p10570_s1 and converted to hartree (values in millihartree are also available (with fewer significant figures) in http://jcp.aip.org/resource/1/jcpsa6/v106/i3/p1063_s1)
+
  # CBS-QB3 and G3 methods include SOC for atoms, so no correction is necessary; gmagoon has confirmed with Gaussian, Inc. that the atom energies calculated by Gaussian using these methods include an SOC correction (though it is not explicitly stated in the output)
  #CBSQB3 E for H, N, O, C, P
  atomEcbsqb3 = {'H':-0.499818 , 'N':-54.520543 , 'O':-74.987624 , 'C':-37.785385 , 'P':-340.817186}
@@ -53,7 +54,8 @@ class CanTherm:
  atomEcbsqb3uf = {'H':-0.499818 , 'N':-54.520543 , 'O':-74.987619 , 'C':-37.785376 , 'P':-340.817186}
  #G3 E for H, N, O, C, P
  atomEg3 = {'H':-0.5010030, 'N':-54.564343, 'O':-75.030991, 'C':-37.827717, 'P':-341.116432}
- #the values below do not include spin-orbit correction, so this is added below
+
+ #the raw values computed using the methods below do not include spin-orbit correction, so this is added below as a correction
  #Klip QCI(dz,tz)+ MP2(tz,qz) E for H, N, O, C, P
  #atomEKlip_1 = {'H':-0.49991705, 'O':-74.99507456, 'C':-37.78778408,}
  atomEKlip_1 = {'H':-0.50003976+SOC['H'], 'O':-75.00915718+SOC['O'], 'C':-37.79249556+SOC['C'],}
