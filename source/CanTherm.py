@@ -43,23 +43,34 @@ class CanTherm:
  Cp = []
  Parition = []
  scale = 0.0
+
+ #units below are Hartree
+ SOC = {'H':0.0, 'N':0.0, 'O': -0.000355, 'C': -0.000135, 'P': 0.0} #spin orbit correction (SOC) in Hartrees, values taken from note 22 of http://jcp.aip.org/resource/1/jcpsa6/v109/i24/p10570_s1 and converted to hartree (values in millihartree are also available (with fewer significant figures) in http://jcp.aip.org/resource/1/jcpsa6/v106/i3/p1063_s1)
+ # CBS-QB3 and G3 methods include SOC for atoms, so no correction is necessary; gmagoon has confirmed with Gaussian, Inc. that the atom energies calculated by Gaussian using these methods include an SOC correction (though it is not explicitly stated in the output)
  #CBSQB3 E for H, N, O, C, P
  atomEcbsqb3 = {'H':-0.499818 , 'N':-54.520543 , 'O':-74.987624 , 'C':-37.785385 , 'P':-340.817186}
   #CBSQB3ultrafine E for H, N, O, C, P (P, N values taken from "regular" CBS-QB3 value as a first approximation; H unchanged, I believe)
  atomEcbsqb3uf = {'H':-0.499818 , 'N':-54.520543 , 'O':-74.987619 , 'C':-37.785376 , 'P':-340.817186}
  #G3 E for H, N, O, C, P
  atomEg3 = {'H':-0.5010030, 'N':-54.564343, 'O':-75.030991, 'C':-37.827717, 'P':-341.116432}
+ #the values below do not include spin-orbit correction, so this is added below
  #Klip QCI(dz,tz)+ MP2(tz,qz) E for H, N, O, C, P
  #atomEKlip_1 = {'H':-0.49991705, 'O':-74.99507456, 'C':-37.78778408,}
- atomEKlip_1 = {'H':-0.50003976, 'O':-75.00915718, 'C':-37.79249556,} 
+ atomEKlip_1 = {'H':-0.50003976+SOC['H'], 'O':-75.00915718+SOC['O'], 'C':-37.79249556+SOC['C'],}
 #Klip QCI(tz,qz) E for H, N, O, C, P
 #atomEKlip_2 = {'H':-0.50003976, 'O':-75.00692740, 'C':-37.79044862,}
- atomEKlip_2 = {'H':-0.50003976, 'O':-75.00692746, 'C':-37.79044863,}
+ atomEKlip_2 = {'H':-0.50003976+SOC['H'], 'O':-75.00692746+SOC['O'], 'C':-37.79044863+SOC['C'],}
 #Klip CCSD(T)(tz,qz) E for H, N, O, C, P
- atomEKlip_2_cc = {'H':-0.50003976, 'O':-75.00681155, 'C':-37.79029443,}
+ atomEKlip_2_cc = {'H':-0.50003976+SOC['H'], 'O':-75.00681155+SOC['O'], 'C':-37.79029443+SOC['H'],}
 
+#units below are kcal/mol;
+ atomH0 = {'H': 51.63 , 'N': 112.53 ,'O': 58.99 ,'C': 169.98 } #expt Hf at 0K (see Gaussian thermo whitepaper: http://www.gaussian.com/g_whitepap/thermo.htm); note: these values are relatively old and some improvement may be possible by using newer values, particularly for carbon; however, care should be taken to ensure that they are compatible with the BAC values (if BACs are used)
+ atomTC = {'H': 1.01 , 'N': 1.04, 'O': 1.04 ,'C': 0.25 }#thermal contribution Hss(298K)-Hss(0K) reported by Gaussian thermo whitepaper; this will be subtracted from the corresponding value in atomH0 to produce an energy used in calculating Hf298
+ atomH={'H': atomH0['H'] - atomTC['H'], 'N': atomH0['N']-atomTC['N'], 'O': atomH0['O']-atomTC['O'], 'C': atomH0['C']-atomTC['C'] }
+ #old approach: included SOC in experimental values; this produced an incorrect double-counting of SOC when using methods like CBS-QB3 and G3 that include the SOC correction in their reported atom energies (atomEcbsqb3 and atomEg3)
  #expt H contains H + TC + SOC (spin orbital correction)
- atomH = {'H':50.62 , 'N':111.49 , 'O':58.163 , 'C':169.8147 }
+ #atomH = {'H':50.62 , 'N':111.49 , 'O':58.163 , 'C':169.8147 }
+ 
  #BAC for C-H    C-C   C=C    C.TB.C  O-H   C-O   C=O   N.TB.N O=O   H-H  C.TB.N
  bondC = [-0.11, -0.3, -0.08, -0.64,  0.02, 0.33, 0.55, -2.0,  -0.2, 1.1, -0.89]
 
