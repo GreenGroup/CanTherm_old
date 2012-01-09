@@ -166,6 +166,7 @@ def main():
      if not molecule.Etype == 'mm4':#for the MM4 case, the value passed in should be in kcal/mol and should not require unit adjustments or atomization energy information
 	 atoms = readGeomFc.getAtoms(molecule.Mass)
 	 atomsH = 0.0
+	 #atomsH0 = 0.0
 	 if molecule.Etype == 'cbsqb3':
 	    atomE = data.atomEcbsqb3
 	 if molecule.Etype == 'cbsqb3uf':
@@ -181,7 +182,9 @@ def main():
 	 for atom in atoms:
 	     H -= atomE[atom]
 	     atomsH += data.atomH[atom]
+	#     atomsH0 += data.atomH0[atom]
 	 H = H*627.5095+atomsH
+	# H0 = H*627.5095+atomsH0
 
      if (molecule.Etype == 'cbsqb3' or molecule.Etype == 'cbsqb3uf') :
        b = 0
