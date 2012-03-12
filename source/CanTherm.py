@@ -63,7 +63,7 @@ class CanTherm:
 #atomEKlip_2 = {'H':-0.50003976, 'O':-75.00692740, 'C':-37.79044862,}
  atomEKlip_2 = {'H':-0.50003976+SOC['H'], 'O':-75.00692746+SOC['O'], 'C':-37.79044863+SOC['C'],}
 #Klip CCSD(T)(tz,qz) E for H, N, O, C, P
- atomEKlip_2_cc = {'H':-0.50003976+SOC['H'], 'O':-75.00681155+SOC['O'], 'C':-37.79029443+SOC['H'],}
+ atomEKlip_2_cc = {'H':-0.50003976+SOC['H'], 'O':-75.00681155+SOC['O'], 'C':-37.79029443+SOC['C'],}
 
 #units below are kcal/mol;
  atomH0 = {'H': 51.63 , 'N': 112.53 ,'O': 58.99 ,'C': 169.98 } #expt Hf at 0K (see Gaussian thermo whitepaper: http://www.gaussian.com/g_whitepap/thermo.htm); note: these values are relatively old and some improvement may be possible by using newer values, particularly for carbon; however, care should be taken to ensure that they are compatible with the BAC values (if BACs are used)
